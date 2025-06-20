@@ -644,6 +644,13 @@ class BudgetTracker {
                     </button>
                 </div>
             `;
+            
+            // Add event listener to the dynamically created button
+            const addJointGoalBtn = document.getElementById('addJointGoalBtn');
+            if (addJointGoalBtn) {
+                addJointGoalBtn.addEventListener('click', () => this.openModal('jointGoalModal'));
+            }
+            
             return;
         }
 

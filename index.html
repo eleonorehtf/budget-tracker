@@ -207,18 +207,18 @@
             <form id="transactionForm">
                 <div class="form-group">
                     <label for="transactionType">Type</label>
-                    <select id="transactionType" required>
+                    <select id="transactionType" name="transactionType" required>
                         <option value="income">Income</option>
                         <option value="expense">Expense</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label for="transactionAmount">Amount</label>
-                    <input type="number" id="transactionAmount" step="0.01" min="0" required>
+                    <input type="number" id="transactionAmount" name="transactionAmount" step="0.01" min="0" required>
                 </div>
                 <div class="form-group">
                     <label for="transactionCategory">Category</label>
-                    <select id="transactionCategory" required>
+                    <select id="transactionCategory" name="transactionCategory" required>
                         <option value="">Select Category</option>
                     </select>
                 </div>
@@ -226,7 +226,7 @@
                 <div id="householdTransactionFields" style="display: none;">
                     <div class="form-group">
                         <label for="transactionOwner">Who paid?</label>
-                        <select id="transactionOwner">
+                        <select id="transactionOwner" name="transactionOwner">
                             <option value="you">You</option>
                             <option value="partner">Partner</option>
                             <option value="shared">Shared</option>
@@ -234,7 +234,7 @@
                     </div>
                     <div class="form-group">
                         <label for="splitType">Split Type</label>
-                        <select id="splitType">
+                        <select id="splitType" name="splitType">
                             <option value="50-50">50/50 Split</option>
                             <option value="proportional">Proportional to Income</option>
                             <option value="custom">Custom Split</option>
@@ -243,11 +243,11 @@
                 </div>
                 <div class="form-group">
                     <label for="transactionDescription">Description</label>
-                    <input type="text" id="transactionDescription" required>
+                    <input type="text" id="transactionDescription" name="transactionDescription" required>
                 </div>
                 <div class="form-group">
                     <label for="transactionDate">Date</label>
-                    <input type="date" id="transactionDate" required>
+                    <input type="date" id="transactionDate" name="transactionDate" required>
                 </div>
                 <button type="submit" class="btn btn-primary">Add Transaction</button>
             </form>
@@ -262,22 +262,22 @@
             <form id="categoryForm">
                 <div class="form-group">
                     <label for="categoryName">Category Name</label>
-                    <input type="text" id="categoryName" required>
+                    <input type="text" id="categoryName" name="categoryName" required>
                 </div>
                 <div class="form-group">
                     <label for="categoryBudget">Monthly Budget</label>
-                    <input type="number" id="categoryBudget" step="0.01" min="0" required>
+                    <input type="number" id="categoryBudget" name="categoryBudget" step="0.01" min="0" required>
                 </div>
                 <div class="form-group">
                     <label for="categoryType">Category Type</label>
-                    <select id="categoryType">
+                    <select id="categoryType" name="categoryType">
                         <option value="personal">Personal</option>
                         <option value="shared">Shared</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label for="categoryColor">Color</label>
-                    <input type="color" id="categoryColor" value="#3b82f6">
+                    <input type="color" id="categoryColor" name="categoryColor" value="#3b82f6">
                 </div>
                 <button type="submit" class="btn btn-primary">Add Category</button>
             </form>
@@ -292,22 +292,22 @@
             <form id="customCategoryForm">
                 <div class="form-group">
                     <label for="customCategoryName">Category Name</label>
-                    <input type="text" id="customCategoryName" required>
+                    <input type="text" id="customCategoryName" name="customCategoryName" required>
                 </div>
                 <div class="form-group">
                     <label for="customCategoryBudget">Monthly Budget</label>
-                    <input type="number" id="customCategoryBudget" step="0.01" min="0" required>
+                    <input type="number" id="customCategoryBudget" name="customCategoryBudget" step="0.01" min="0" required>
                 </div>
                 <div class="form-group">
                     <label for="customCategoryType">Category Type</label>
-                    <select id="customCategoryType">
+                    <select id="customCategoryType" name="customCategoryType">
                         <option value="personal">Personal</option>
                         <option value="shared">Shared</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label for="customCategoryColor">Color</label>
-                    <input type="color" id="customCategoryColor" value="#3b82f6">
+                    <input type="color" id="customCategoryColor" name="customCategoryColor" value="#3b82f6">
                 </div>
                 <button type="submit" class="btn btn-primary">Add Category</button>
             </form>
@@ -341,19 +341,19 @@
             <form id="jointGoalForm">
                 <div class="form-group">
                     <label for="goalName">Goal Name</label>
-                    <input type="text" id="goalName" placeholder="e.g., Vacation, House Down Payment" required>
+                    <input type="text" id="goalName" name="goalName" placeholder="e.g., Vacation, House Down Payment" required>
                 </div>
                 <div class="form-group">
                     <label for="goalTarget">Target Amount</label>
-                    <input type="number" id="goalTarget" step="0.01" min="0" required>
+                    <input type="number" id="goalTarget" name="goalTarget" step="0.01" min="0" required>
                 </div>
                 <div class="form-group">
                     <label for="goalDeadline">Target Date</label>
-                    <input type="date" id="goalDeadline" required>
+                    <input type="date" id="goalDeadline" name="goalDeadline" required>
                 </div>
                 <div class="form-group">
                     <label for="goalIcon">Goal Icon</label>
-                    <select id="goalIcon">
+                    <select id="goalIcon" name="goalIcon">
                         <option value="fas fa-plane">✈️ Vacation</option>
                         <option value="fas fa-home">🏠 House</option>
                         <option value="fas fa-car">🚗 Car</option>
@@ -376,15 +376,15 @@
             <form id="editPartnerForm">
                 <div class="form-group">
                     <label for="partnerName">Partner Name</label>
-                    <input type="text" id="partnerName" placeholder="Enter partner's name" required>
+                    <input type="text" id="partnerName" name="partnerName" placeholder="Enter partner's name" required>
                 </div>
                 <div class="form-group">
                     <label for="partnerIncomeEdit">Monthly Income</label>
-                    <input type="number" id="partnerIncomeEdit" step="0.01" min="0" required>
+                    <input type="number" id="partnerIncomeEdit" name="partnerIncomeEdit" step="0.01" min="0" required>
                 </div>
                 <div class="form-group">
                     <label for="partnerColor">Partner Color</label>
-                    <input type="color" id="partnerColor" value="#ec4899">
+                    <input type="color" id="partnerColor" name="partnerColor" value="#ec4899">
                 </div>
                 <button type="submit" class="btn btn-primary">Save Partner Info</button>
             </form>
