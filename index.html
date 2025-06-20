@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1><i class="fas fa-wallet"></i> Budget Tracker</h1>
+            <div class="header-actions">
+                <button id="setupBudgetBtn" class="btn btn-secondary">
+                    <i class="fas fa-cog"></i> Setup Budget
+                </button>
+                <button id="addTransactionBtn" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add Transaction
+                </button>
+            </div>
+        </header>
+
+        <!-- Budget Setup Section -->
+        <section id="budgetSetupSection" class="budget-setup-section" style="display: none;">
+            <h2>Setup Your Monthly Budget</h2>
+            <div class="budget-setup-content">
+                <div class="net-income-section">
+                    <h3>Monthly Net Income</h3>
+                    <div class="income-input-group">
+                        <span class="currency-symbol">$</span>
+                        <input type="number" id="netIncome" placeholder="0.00" step="0.01" min="0">
+                    </div>
+                </div>
+                
+                <div class="budget-allocation-section">
+                    <div class="allocation-header">
+                        <h3>Budget Allocation</h3>
+                        <div class="budget-summary">
+                            <span>Allocated: <span id="allocatedAmount">$0.00</span></span>
+                            <span>Remaining: <span id="remainingAmount">$0.00</span></span>
+                        </div>
+                    </div>
+                    
+                    <div class="budget-categories-setup" id="budgetCategoriesSetup">
+                        <!-- Categories will be added here dynamically -->
+                    </div>
+                    
+                    <div class="setup-actions">
+                        <button id="addCustomCategoryBtn" class="btn btn-secondary">
+                            <i class="fas fa-plus"></i> Add Custom Category
+                        </button>
+                        <button id="saveBudgetBtn" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Budget
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dashboard Overview -->
+        <section class="dashboard">
+            <div class="overview-cards">
+                <div class="card">
+                    <div class="card-icon income">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>Net Income</h3>
+                        <p id="totalIncome">$0.00</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-icon expense">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>Total Expenses</h3>
+                        <p id="totalExpenses">$0.00</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-icon balance">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>Remaining Budget</h3>
+                        <p id="remainingBudget">$0.00</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Budget Categories -->
+        <section class="budget-section">
+            <h2>Budget Categories</h2>
+            <div class="budget-categories" id="budgetCategories">
+                <!-- Categories will be added here dynamically -->
+            </div>
+            <button id="addCategoryBtn" class="btn btn-secondary">
+                <i class="fas fa-plus"></i> Add Category
+            </button>
+        </section>
+
+        <!-- Recent Transactions -->
+        <section class="transactions-section">
+            <h2>Recent Transactions</h2>
+            <div class="transactions-list" id="transactionsList">
+                <!-- Transactions will be added here dynamically -->
+            </div>
+        </section>
+    </div>
+
+    <!-- Add Transaction Modal -->
+    <div id="transactionModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Add Transaction</h2>
+            <form id="transactionForm">
+                <div class="form-group">
+                    <label for="transactionType">Type</label>
+                    <select id="transactionType" required>
+                        <option value="income">Income</option>
+                        <option value="expense">Expense</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="transactionAmount">Amount</label>
+                    <input type="number" id="transactionAmount" step="0.01" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="transactionCategory">Category</label>
+                    <select id="transactionCategory" required>
+                        <option value="">Select Category</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="transactionDescription">Description</label>
+                    <input type="text" id="transactionDescription" required>
+                </div>
+                <div class="form-group">
+                    <label for="transactionDate">Date</label>
+                    <input type="date" id="transactionDate" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Transaction</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Category Modal -->
+    <div id="categoryModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Add Budget Category</h2>
+            <form id="categoryForm">
+                <div class="form-group">
+                    <label for="categoryName">Category Name</label>
+                    <input type="text" id="categoryName" required>
+                </div>
+                <div class="form-group">
+                    <label for="categoryBudget">Monthly Budget</label>
+                    <input type="number" id="categoryBudget" step="0.01" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="categoryColor">Color</label>
+                    <input type="color" id="categoryColor" value="#3b82f6">
+                </div>
+                <button type="submit" class="btn btn-primary">Add Category</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Custom Category Modal -->
+    <div id="customCategoryModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Add Custom Category</h2>
+            <form id="customCategoryForm">
+                <div class="form-group">
+                    <label for="customCategoryName">Category Name</label>
+                    <input type="text" id="customCategoryName" required>
+                </div>
+                <div class="form-group">
+                    <label for="customCategoryBudget">Monthly Budget</label>
+                    <input type="number" id="customCategoryBudget" step="0.01" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="customCategoryColor">Color</label>
+                    <input type="color" id="customCategoryColor" value="#3b82f6">
+                </div>
+                <button type="submit" class="btn btn-primary">Add Category</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Sub-category Modal -->
+    <div id="subCategoryModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Add Sub-category</h2>
+            <form id="subCategoryForm">
+                <div class="form-group">
+                    <label for="subCategoryName">Sub-category Name</label>
+                    <input type="text" id="subCategoryName" required>
+                </div>
+                <div class="form-group">
+                    <label for="subCategoryBudget">Monthly Budget</label>
+                    <input type="number" id="subCategoryBudget" step="0.01" min="0" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Sub-category</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
