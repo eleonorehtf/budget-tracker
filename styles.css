@@ -900,16 +900,26 @@ body {
 }
 
 /* Empty States */
-.empty-state {
+.empty-transactions, .empty-goals, .empty-categories {
     text-align: center;
-    padding: var(--spacing-2xl);
-    color: var(--gray-500);
+    padding: 40px 20px;
+    color: #6b7280;
 }
 
-.empty-state i {
-    font-size: 3rem;
-    margin-bottom: var(--spacing-lg);
-    opacity: 0.5;
+.empty-transactions i, .empty-goals i, .empty-categories i {
+    font-size: 48px;
+    color: #3b82f6;
+    margin-bottom: 16px;
+    opacity: 0.6;
+}
+
+.empty-transactions p, .empty-goals p, .empty-categories p {
+    margin-bottom: 20px;
+    font-size: 16px;
+}
+
+.empty-categories i {
+    color: #10b981;
 }
 
 /* Animations */

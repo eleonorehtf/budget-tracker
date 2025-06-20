@@ -234,28 +234,32 @@ class BudgetTracker {
     renderSubCategories(category) {
         if (!category.subCategories) return '';
         
-        return `
-            <div class="sub-categories">
-                ${category.subCategories.map(sub => `
-                    <div class="sub-category-item">
-                        <div class="sub-category-header">
-                            <div class="sub-category-name">${sub.name}</div>
-                            <div class="sub-category-budget">
-                                <span class="currency-symbol">$</span>
-                                <input type="number" 
-                                       class="sub-category-budget-input" 
-                                       data-category="${category.name}" 
-                                       data-subcategory="${sub.name}"
-                                       value="${sub.budget}" 
-                                       step="0.01" 
-                                       min="0"
-                                       placeholder="0.00">
-                            </div>
+        // Filter out sub-categories with budget of 0
+        const activeSubCategories = category.subCategories.filter(sub => sub.budget > 0);
+        
+        if (activeSubCategories.length === 0) return '';
+        
+        const subCategoriesHtml = activeSubCategories.map(sub => {
+            const spent = this.calculateSubCategorySpent(category.name, sub.name);
+            const percentage = sub.budget > 0 ? (spent / sub.budget) * 100 : 0;
+            const status = this.getProgressStatus(percentage);
+
+            return `
+                <div class="sub-category-item">
+                    <div class="sub-category-header">
+                        <div class="sub-category-name">${sub.name}</div>
+                        <div class="sub-category-budget">
+                            ${this.formatCurrency(spent)} / ${this.formatCurrency(sub.budget)}
                         </div>
                     </div>
-                `).join('')}
-            </div>
-        `;
+                    <div class="progress-bar">
+                        <div class="progress-fill ${status}" style="width: ${Math.min(percentage, 100)}%"></div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        return `<div class="sub-categories">${subCategoriesHtml}</div>`;
     }
 
     updateBudgetAllocation() {
@@ -466,13 +470,21 @@ class BudgetTracker {
 
         // Render default categories
         Object.entries(this.categories).forEach(([groupName, categories]) => {
+            // Filter out categories with budget of 0
+            const activeCategories = categories.filter(category => category.budget > 0);
+            
+            // Skip empty groups
+            if (activeCategories.length === 0) {
+                return;
+            }
+
             const groupDiv = document.createElement('div');
             groupDiv.className = 'category-group';
             groupDiv.innerHTML = `
                 <h3><i class="fas fa-folder"></i> ${groupName}</h3>
             `;
 
-            categories.forEach(category => {
+            activeCategories.forEach(category => {
                 const spent = this.calculateCategorySpent(category.name);
                 const percentage = category.budget > 0 ? (spent / category.budget) * 100 : 0;
                 const status = this.getProgressStatus(percentage);
@@ -512,14 +524,16 @@ class BudgetTracker {
         });
 
         // Render custom categories
-        if (this.customCategories.length > 0) {
+        const activeCustomCategories = this.customCategories.filter(category => category.budget > 0);
+        
+        if (activeCustomCategories.length > 0) {
             const customGroupDiv = document.createElement('div');
             customGroupDiv.className = 'category-group';
             customGroupDiv.innerHTML = `
                 <h3><i class="fas fa-tags"></i> Custom Categories</h3>
             `;
 
-            this.customCategories.forEach(category => {
+            activeCustomCategories.forEach(category => {
                 const spent = this.calculateCategorySpent(category.name);
                 const percentage = category.budget > 0 ? (spent / category.budget) * 100 : 0;
                 const status = this.getProgressStatus(percentage);
@@ -556,12 +570,36 @@ class BudgetTracker {
 
             container.appendChild(customGroupDiv);
         }
+
+        // Show message if no categories have budgets set
+        if (container.children.length === 0) {
+            container.innerHTML = `
+                <div class="empty-categories">
+                    <i class="fas fa-chart-pie"></i>
+                    <p>No budget categories set up yet. Click "Setup Budget" to get started!</p>
+                    <button id="setupBudgetFromEmptyBtn" class="btn btn-primary">
+                        <i class="fas fa-cog"></i> Setup Budget
+                    </button>
+                </div>
+            `;
+            
+            // Add event listener to the dynamically created button
+            const setupBudgetBtn = document.getElementById('setupBudgetFromEmptyBtn');
+            if (setupBudgetBtn) {
+                setupBudgetBtn.addEventListener('click', () => this.toggleBudgetSetup());
+            }
+        }
     }
 
     renderSubCategoriesDisplay(category) {
         if (!category.subCategories) return '';
         
-        const subCategoriesHtml = category.subCategories.map(sub => {
+        // Filter out sub-categories with budget of 0
+        const activeSubCategories = category.subCategories.filter(sub => sub.budget > 0);
+        
+        if (activeSubCategories.length === 0) return '';
+        
+        const subCategoriesHtml = activeSubCategories.map(sub => {
             const spent = this.calculateSubCategorySpent(category.name, sub.name);
             const percentage = sub.budget > 0 ? (spent / sub.budget) * 100 : 0;
             const status = this.getProgressStatus(percentage);
