@@ -1,182 +1,155 @@
-# Budget Tracker App
+# 💰 Budget Tracker - Couple Edition
 
-A modern, responsive web application to help you track your budget and manage your finances effectively.
+A modern, beautiful budgeting app designed for both individuals and couples to track expenses, manage budgets, and achieve financial goals together.
 
-## Features
+## ✨ Features
 
-### 🎯 Budget Setup
-- **Net Income Tracking**: Set your monthly net income as the foundation for your budget
-- **Organized Categories**: Pre-filled categories organized by type (Fixed Expenses, Variable Expenses, Savings & Investments, Personal & Lifestyle)
-- **Sub-categories Support**: Create detailed sub-categories for complex categories like Subscriptions
-- **Dynamic Budget Allocation**: Allocate amounts to each category with real-time feedback
-- **Budget Warnings**: Visual warnings when you exceed your net income
-- **Remaining Budget Display**: See exactly how much budget you have left to allocate
+### 🏠 **Dual Budget Modes**
+- **Personal Mode**: Traditional individual budgeting
+- **Household Mode**: Couple-focused budgeting with shared expenses
 
-### 💰 Transaction Management
-- **Income & Expense Tracking**: Log both income and expenses
-- **Category-based Organization**: Assign transactions to specific budget categories or sub-categories
-- **Date Tracking**: Keep track of when transactions occurred
-- **Description Support**: Add detailed descriptions for each transaction
+### 👥 **Partner Management**
+- Add partner information (name, income, color)
+- Automatic contribution percentage calculations
+- Fair expense splitting options
 
-### 📊 Dashboard & Analytics
-- **Overview Cards**: Quick view of net income, total expenses, and remaining budget
-- **List Format Categories**: Clean, organized view of budget categories by type
-- **Sub-category Tracking**: Detailed tracking for categories with sub-categories
-- **Progress Tracking**: Visual progress bars for each budget category
-- **Color-coded Status**: Green (on track), Yellow (warning), Red (over budget)
-- **Recent Transactions**: View your latest 10 transactions
+### 💑 **Couple-Specific Features**
+- **Shared vs Personal Categories**: Distinguish between joint and individual expenses
+- **Smart Expense Splitting**: 
+  - 50/50 split
+  - Proportional to income
+  - Custom split percentages
+- **"Who Paid What" Tracking**: Track who paid for each expense
+- **Joint Goals**: Create and track shared financial goals together
 
-### 🎨 Customization
-- **Custom Categories**: Add your own budget categories with custom colors
-- **Sub-category Creation**: Add detailed sub-categories to any category
-- **Flexible Budgeting**: Modify your budget setup anytime
-- **Responsive Design**: Works perfectly on desktop, tablet, and mobile
+### 📊 **Enhanced Budget Categories**
+- **Fixed Expenses**: Rent, utilities, insurance, phone/internet, car payment
+- **Variable Expenses**: Groceries, gas, dining out, entertainment, shopping
+- **Savings & Investments**: Emergency fund, retirement, investments
+- **Personal & Lifestyle**: Subscriptions (with sub-categories), personal care, hobbies, gifts
 
-## Budget Categories
+### 🎯 **Joint Goals System**
+- Create shared financial goals (vacation, house, car, etc.)
+- Track progress together
+- Set deadlines and target amounts
+- Visual progress indicators
 
-### Fixed Expenses
-- Rent / Mortgage
-- Utilities (electricity, gas, water)
-- Internet & Phone
-- Insurance (health, auto, home, renters)
-- Loan Payments (student, personal, auto)
+### 💳 **Advanced Transaction Tracking**
+- Categorize expenses as personal or shared
+- Track who paid for each transaction
+- Multiple split types for fair expense sharing
+- Sub-category support (e.g., Netflix, Spotify under Subscriptions)
 
-### Variable Expenses
-- Groceries
-- Dining Out / Takeout
-- Transportation (gas, public transport, ride-share)
-- Medical / Healthcare (out-of-pocket, prescriptions)
-- Household Supplies (cleaning, toiletries)
+### 📈 **Smart Analytics**
+- Real-time budget progress tracking
+- Visual progress bars with color-coded status
+- Spending vs. budget comparisons
+- Individual vs. shared expense breakdowns
 
-### Savings & Investments
-- Emergency Fund
-- Retirement Contributions
-- Investment Accounts
-- Short-term Savings Goals (vacation, large purchases)
+### 🎨 **Modern UI/UX**
+- Beautiful gradient backgrounds
+- Smooth animations and transitions
+- Responsive design for all devices
+- Intuitive navigation and interactions
 
-### Personal & Lifestyle
-- Clothing
-- Gym / Fitness
-- **Subscriptions** (with sub-categories for individual services)
-- Travel / Vacations
-- Gifts & Donations
+## 🚀 Getting Started
 
-## Sub-categories Feature
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/eleonorehtf/budget-tracker.git
+   cd budget-tracker
+   ```
 
-### Subscriptions Category
-The Subscriptions category includes sub-categories for individual subscription services:
+2. **Open the app**:
+   - Simply open `index.html` in your web browser
+   - No installation or setup required!
 
-**Default Sub-categories:**
-- Netflix
-- Spotify
-- Gym Membership
+3. **Choose your mode**:
+   - Click "Personal" for individual budgeting
+   - Click "Household" for couple budgeting
 
-**Adding Sub-categories:**
-1. Click the "Add Sub-category" button next to the Subscriptions category
-2. Enter the sub-category name (e.g., "Amazon Prime", "YouTube Premium")
-3. Set the monthly budget for that specific subscription
-4. Save to add it to your budget tracking
+## 📱 How to Use
 
-**Benefits:**
-- Track individual subscription costs separately
-- See which subscriptions are using the most budget
-- Easily identify subscriptions you might want to cancel
-- Better organization of recurring expenses
+### **Personal Mode**
+1. Click "Setup Budget" to configure your monthly income and categories
+2. Add transactions using "Add Transaction"
+3. Monitor your spending and budget progress
+4. Create custom categories as needed
 
-## How to Use
+### **Household Mode**
+1. **Setup Partner Information**:
+   - Click "Edit" on the partner card
+   - Enter partner's name, income, and choose a color
 
-### First Time Setup
-1. **Open the app** by double-clicking `index.html` in your browser
-2. **Set your net income** in the budget setup section
-3. **Allocate your budget** to different categories by type
-4. **Add sub-categories** for Subscriptions or other categories as needed
-5. **Add custom categories** if needed
-6. **Save your budget** to get started
+2. **Configure Household Budget**:
+   - Enter both incomes
+   - Allocate budgets to shared and personal categories
+   - Set up joint goals together
 
-### Daily Usage
-1. **Add transactions** using the "Add Transaction" button
-2. **Select categories or sub-categories** when adding expenses
-3. **Monitor your progress** through the dashboard
-4. **Check category status** to see if you're staying within budget
-5. **Adjust your budget** anytime using the "Setup Budget" button
+3. **Track Shared Expenses**:
+   - Add transactions and specify who paid
+   - Choose split type (50/50, proportional, or custom)
+   - Monitor individual and shared spending
 
-### Budget Management
-- **Visual Warnings**: Input fields turn yellow when approaching budget limit, red when exceeding
-- **Real-time Updates**: See remaining budget update as you allocate funds
-- **Over-budget Alerts**: Get warned if your total allocation exceeds net income
-- **Flexible Categories**: Add, modify, or remove categories as needed
-- **Organized Display**: Categories are grouped by type for better organization
-- **Sub-category Support**: Break down complex categories into detailed tracking
+4. **Manage Joint Goals**:
+   - Create goals like "Vacation Fund" or "House Down Payment"
+   - Track progress together
+   - Set deadlines and target amounts
 
-## File Structure
+## 🎯 **Key Couple Features Explained**
 
-```
-Budget/
-├── index.html          # Main HTML file
-├── styles.css          # CSS styling
-├── script.js           # JavaScript functionality
-└── README.md           # This file
-```
+### **Expense Splitting Options**
+- **50/50 Split**: Equal contribution regardless of income
+- **Proportional Split**: Based on each partner's income percentage
+- **Custom Split**: Manually set contribution percentages
+- **Shared Payment**: Mark expenses paid from joint account
 
-## Technical Details
+### **Category Types**
+- **Shared**: Both partners contribute (rent, utilities, groceries)
+- **Personal**: Individual expenses (personal shopping, hobbies)
 
-### Data Storage
-- All data is stored locally in your browser using localStorage
-- No internet connection required
-- Data persists between browser sessions
+### **Joint Goals**
+- Create meaningful financial goals together
+- Track progress with visual indicators
+- Set realistic deadlines
+- Celebrate achievements together
 
-### Browser Compatibility
-- Works on all modern browsers (Chrome, Firefox, Safari, Edge)
-- Responsive design for mobile devices
-- No external dependencies except for icons and fonts
+## 💾 **Data Storage**
+- All data is stored locally in your browser
+- No account creation required
+- Data persists between sessions
+- Export/import functionality coming soon
 
-### Features Explained
+## 🛠 **Technical Details**
+- **Frontend**: HTML5, CSS3, JavaScript (ES6+)
+- **Storage**: LocalStorage for data persistence
+- **Icons**: Font Awesome 6
+- **Fonts**: Inter (Google Fonts)
+- **Responsive**: Mobile-first design
 
-#### Budget Setup Process
-1. **Net Income Input**: Enter your monthly take-home pay
-2. **Category Allocation**: Distribute your income across spending categories by type
-3. **Sub-category Setup**: Add detailed sub-categories for complex categories
-4. **Real-time Feedback**: See allocated vs. remaining amounts
-5. **Visual Warnings**: Color-coded inputs show budget status
-6. **Save & Continue**: Lock in your budget and start tracking
+## 🎨 **Customization**
+- Add custom categories with your own colors
+- Create sub-categories for detailed tracking
+- Personalize partner information and colors
+- Choose from various goal icons
 
-#### Transaction Tracking
-- **Type Selection**: Choose between income or expense
-- **Amount Entry**: Enter the transaction amount
-- **Category Assignment**: Select the appropriate budget category or sub-category
-- **Description**: Add details about the transaction
-- **Date**: Record when the transaction occurred
+## 🔮 **Future Features**
+- [ ] Data export/import functionality
+- [ ] Multiple currency support
+- [ ] Recurring transaction setup
+- [ ] Bill reminders and notifications
+- [ ] Advanced reporting and charts
+- [ ] Cloud sync (optional)
+- [ ] Mobile app version
 
-#### Dashboard Features
-- **Overview Cards**: Three key metrics at a glance
-- **Category Lists**: Organized by type with progress tracking
-- **Sub-category Display**: Detailed breakdown of complex categories
-- **Recent Activity**: Latest transactions for quick reference
-- **Budget Status**: Real-time remaining budget calculation
+## 🤝 **Contributing**
+This is a personal project, but suggestions and feedback are welcome!
 
-## Tips for Effective Budgeting
+## 📄 **License**
+This project is open source and available under the [MIT License](LICENSE).
 
-1. **Start with Fixed Expenses**: Allocate your essential bills first
-2. **Plan for Savings**: Include emergency fund and retirement contributions
-3. **Track Subscriptions**: Use sub-categories to monitor individual subscription costs
-4. **Track Regularly**: Log transactions as they happen
-5. **Review Monthly**: Check your progress and adjust as needed
-6. **Use Categories**: Organize spending to identify patterns
-7. **Stay Flexible**: Adjust your budget as your needs change
+---
 
-## Getting Started
+**Built with ❤️ for couples who want to manage their finances together**
 
-1. Download or clone this project to your computer
-2. Open `index.html` in your web browser
-3. Follow the setup process to configure your budget
-4. Add sub-categories for your subscriptions
-5. Start tracking your income and expenses!
-
-## Support
-
-This is a local web application, so all your data stays on your device. If you need to:
-- **Backup data**: Export your browser's localStorage data
-- **Reset budget**: Clear your browser's data for this site
-- **Move to new device**: Transfer the files and import your data
-
-Enjoy taking control of your finances with your new Budget Tracker! 💰✨ 
+*Start your financial journey as a team today!* 

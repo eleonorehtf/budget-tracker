@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Budget Tracker</title>
+    <title>Budget Tracker - Couple Edition</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -14,6 +14,15 @@
         <header class="header">
             <h1><i class="fas fa-wallet"></i> Budget Tracker</h1>
             <div class="header-actions">
+                <!-- Budget Mode Toggle -->
+                <div class="budget-mode-toggle">
+                    <button id="personalModeBtn" class="mode-btn active">
+                        <i class="fas fa-user"></i> Personal
+                    </button>
+                    <button id="householdModeBtn" class="mode-btn">
+                        <i class="fas fa-home"></i> Household
+                    </button>
+                </div>
                 <button id="setupBudgetBtn" class="btn btn-secondary">
                     <i class="fas fa-cog"></i> Setup Budget
                 </button>
@@ -23,15 +32,82 @@
             </div>
         </header>
 
+        <!-- Household Mode Features -->
+        <div id="householdFeatures" class="household-features" style="display: none;">
+            <!-- Partner Management -->
+            <section class="partner-section">
+                <div class="partner-cards">
+                    <div class="partner-card">
+                        <div class="partner-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <h3>You</h3>
+                        <p class="partner-income">Income: <span id="yourIncome">$0.00</span></p>
+                        <p class="partner-contribution">Contribution: <span id="yourContribution">0%</span></p>
+                    </div>
+                    <div class="partner-card">
+                        <div class="partner-avatar">
+                            <i class="fas fa-user-friends"></i>
+                        </div>
+                        <h3>Partner</h3>
+                        <p class="partner-income">Income: <span id="partnerIncome">$0.00</span></p>
+                        <p class="partner-contribution">Contribution: <span id="partnerContribution">0%</span></p>
+                        <button id="editPartnerBtn" class="btn btn-small">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Joint Goals -->
+            <section class="joint-goals-section">
+                <h2><i class="fas fa-heart"></i> Our Goals</h2>
+                <div class="joint-goals" id="jointGoals">
+                    <div class="empty-goals">
+                        <i class="fas fa-heart"></i>
+                        <p>No joint goals yet. Create your first goal together!</p>
+                        <button id="addJointGoalBtn" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add Joint Goal
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
         <!-- Budget Setup Section -->
         <section id="budgetSetupSection" class="budget-setup-section" style="display: none;">
             <h2>Setup Your Monthly Budget</h2>
             <div class="budget-setup-content">
-                <div class="net-income-section">
-                    <h3>Monthly Net Income</h3>
-                    <div class="income-input-group">
-                        <span class="currency-symbol">$</span>
-                        <input type="number" id="netIncome" placeholder="0.00" step="0.01" min="0">
+                <!-- Personal Mode Setup -->
+                <div id="personalSetup" class="budget-mode-setup">
+                    <div class="net-income-section">
+                        <h3>Monthly Net Income</h3>
+                        <div class="income-input-group">
+                            <span class="currency-symbol">$</span>
+                            <input type="number" id="netIncome" placeholder="0.00" step="0.01" min="0">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Household Mode Setup -->
+                <div id="householdSetup" class="budget-mode-setup" style="display: none;">
+                    <div class="household-income-section">
+                        <h3>Household Income</h3>
+                        <div class="household-income-inputs">
+                            <div class="income-input-group">
+                                <label>Your Income</label>
+                                <span class="currency-symbol">$</span>
+                                <input type="number" id="yourIncomeInput" placeholder="0.00" step="0.01" min="0">
+                            </div>
+                            <div class="income-input-group">
+                                <label>Partner's Income</label>
+                                <span class="currency-symbol">$</span>
+                                <input type="number" id="partnerIncomeInput" placeholder="0.00" step="0.01" min="0">
+                            </div>
+                        </div>
+                        <div class="total-household-income">
+                            <strong>Total Household Income: <span id="totalHouseholdIncome">$0.00</span></strong>
+                        </div>
                     </div>
                 </div>
                 
@@ -68,7 +144,7 @@
                         <i class="fas fa-arrow-down"></i>
                     </div>
                     <div class="card-content">
-                        <h3>Net Income</h3>
+                        <h3 id="incomeLabel">Net Income</h3>
                         <p id="totalIncome">$0.00</p>
                     </div>
                 </div>
@@ -88,6 +164,16 @@
                     <div class="card-content">
                         <h3>Remaining Budget</h3>
                         <p id="remainingBudget">$0.00</p>
+                    </div>
+                </div>
+                <!-- Household Mode Card -->
+                <div id="householdCard" class="card" style="display: none;">
+                    <div class="card-icon household">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <div class="card-content">
+                        <h3>Shared Expenses</h3>
+                        <p id="sharedExpenses">$0.00</p>
                     </div>
                 </div>
             </div>
@@ -136,6 +222,25 @@
                         <option value="">Select Category</option>
                     </select>
                 </div>
+                <!-- Household Mode Fields -->
+                <div id="householdTransactionFields" style="display: none;">
+                    <div class="form-group">
+                        <label for="transactionOwner">Who paid?</label>
+                        <select id="transactionOwner">
+                            <option value="you">You</option>
+                            <option value="partner">Partner</option>
+                            <option value="shared">Shared</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="splitType">Split Type</label>
+                        <select id="splitType">
+                            <option value="50-50">50/50 Split</option>
+                            <option value="proportional">Proportional to Income</option>
+                            <option value="custom">Custom Split</option>
+                        </select>
+                    </div>
+                </div>
                 <div class="form-group">
                     <label for="transactionDescription">Description</label>
                     <input type="text" id="transactionDescription" required>
@@ -164,6 +269,13 @@
                     <input type="number" id="categoryBudget" step="0.01" min="0" required>
                 </div>
                 <div class="form-group">
+                    <label for="categoryType">Category Type</label>
+                    <select id="categoryType">
+                        <option value="personal">Personal</option>
+                        <option value="shared">Shared</option>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label for="categoryColor">Color</label>
                     <input type="color" id="categoryColor" value="#3b82f6">
                 </div>
@@ -185,6 +297,13 @@
                 <div class="form-group">
                     <label for="customCategoryBudget">Monthly Budget</label>
                     <input type="number" id="customCategoryBudget" step="0.01" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="customCategoryType">Category Type</label>
+                    <select id="customCategoryType">
+                        <option value="personal">Personal</option>
+                        <option value="shared">Shared</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label for="customCategoryColor">Color</label>
@@ -210,6 +329,64 @@
                     <input type="number" id="subCategoryBudget" step="0.01" min="0" required>
                 </div>
                 <button type="submit" class="btn btn-primary">Add Sub-category</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Joint Goal Modal -->
+    <div id="jointGoalModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Add Joint Goal</h2>
+            <form id="jointGoalForm">
+                <div class="form-group">
+                    <label for="goalName">Goal Name</label>
+                    <input type="text" id="goalName" placeholder="e.g., Vacation, House Down Payment" required>
+                </div>
+                <div class="form-group">
+                    <label for="goalTarget">Target Amount</label>
+                    <input type="number" id="goalTarget" step="0.01" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="goalDeadline">Target Date</label>
+                    <input type="date" id="goalDeadline" required>
+                </div>
+                <div class="form-group">
+                    <label for="goalIcon">Goal Icon</label>
+                    <select id="goalIcon">
+                        <option value="fas fa-plane">✈️ Vacation</option>
+                        <option value="fas fa-home">🏠 House</option>
+                        <option value="fas fa-car">🚗 Car</option>
+                        <option value="fas fa-graduation-cap">🎓 Education</option>
+                        <option value="fas fa-heart">💕 Wedding</option>
+                        <option value="fas fa-baby">👶 Baby</option>
+                        <option value="fas fa-gem">💎 Luxury</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Create Goal</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Partner Modal -->
+    <div id="editPartnerModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Edit Partner Information</h2>
+            <form id="editPartnerForm">
+                <div class="form-group">
+                    <label for="partnerName">Partner Name</label>
+                    <input type="text" id="partnerName" placeholder="Enter partner's name" required>
+                </div>
+                <div class="form-group">
+                    <label for="partnerIncomeEdit">Monthly Income</label>
+                    <input type="number" id="partnerIncomeEdit" step="0.01" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="partnerColor">Partner Color</label>
+                    <input type="color" id="partnerColor" value="#ec4899">
+                </div>
+                <button type="submit" class="btn btn-primary">Save Partner Info</button>
             </form>
         </div>
     </div>

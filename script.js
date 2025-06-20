@@ -2,638 +2,599 @@
 
 class BudgetTracker {
     constructor() {
-        this.transactions = JSON.parse(localStorage.getItem('transactions')) || [];
-        this.categories = JSON.parse(localStorage.getItem('categories')) || this.getDefaultCategories();
-        this.subCategories = JSON.parse(localStorage.getItem('subCategories')) || this.getDefaultSubCategories();
-        this.netIncome = parseFloat(localStorage.getItem('netIncome')) || 0;
-        this.currentMonth = new Date().getMonth();
-        this.currentYear = new Date().getFullYear();
+        this.budgetMode = 'personal'; // 'personal' or 'household'
+        this.budget = {};
+        this.transactions = [];
+        this.jointGoals = [];
+        this.partner = {
+            name: 'Partner',
+            income: 0,
+            color: '#ec4899'
+        };
+        this.yourIncome = 0;
+        this.categories = this.getDefaultCategories();
+        this.customCategories = [];
         
         this.initializeApp();
+        this.loadData();
         this.setupEventListeners();
         this.updateUI();
-        
-        // Show budget setup if no net income is set
-        if (this.netIncome === 0) {
-            this.showBudgetSetup();
-        }
     }
 
-    // Default categories organized by type
     getDefaultCategories() {
-        return [
-            // Fixed Expenses
-            { id: 1, name: 'Rent / Mortgage', budget: 0, color: '#ef4444', spent: 0, type: 'Fixed Expenses' },
-            { id: 2, name: 'Utilities', budget: 0, color: '#f97316', spent: 0, type: 'Fixed Expenses' },
-            { id: 3, name: 'Internet & Phone', budget: 0, color: '#eab308', spent: 0, type: 'Fixed Expenses' },
-            { id: 4, name: 'Insurance', budget: 0, color: '#84cc16', spent: 0, type: 'Fixed Expenses' },
-            { id: 5, name: 'Loan Payments', budget: 0, color: '#06b6d4', spent: 0, type: 'Fixed Expenses' },
-            
-            // Variable Expenses
-            { id: 6, name: 'Groceries', budget: 0, color: '#8b5cf6', spent: 0, type: 'Variable Expenses' },
-            { id: 7, name: 'Dining Out', budget: 0, color: '#ec4899', spent: 0, type: 'Variable Expenses' },
-            { id: 8, name: 'Transportation', budget: 0, color: '#3b82f6', spent: 0, type: 'Variable Expenses' },
-            { id: 9, name: 'Medical', budget: 0, color: '#10b981', spent: 0, type: 'Variable Expenses' },
-            { id: 10, name: 'Household Supplies', budget: 0, color: '#f59e0b', spent: 0, type: 'Variable Expenses' },
-            
-            // Savings & Investments
-            { id: 11, name: 'Emergency Fund', budget: 0, color: '#059669', spent: 0, type: 'Savings & Investments' },
-            { id: 12, name: 'Retirement', budget: 0, color: '#0d9488', spent: 0, type: 'Savings & Investments' },
-            { id: 13, name: 'Investments', budget: 0, color: '#0891b2', spent: 0, type: 'Savings & Investments' },
-            { id: 14, name: 'Savings Goals', budget: 0, color: '#7c3aed', spent: 0, type: 'Savings & Investments' },
-            
-            // Personal & Lifestyle
-            { id: 15, name: 'Clothing', budget: 0, color: '#be185d', spent: 0, type: 'Personal & Lifestyle' },
-            { id: 16, name: 'Gym / Fitness', budget: 0, color: '#dc2626', spent: 0, type: 'Personal & Lifestyle' },
-            { id: 17, name: 'Subscriptions', budget: 0, color: '#ea580c', spent: 0, type: 'Personal & Lifestyle', hasSubCategories: true },
-            { id: 18, name: 'Travel', budget: 0, color: '#d97706', spent: 0, type: 'Personal & Lifestyle' },
-            { id: 19, name: 'Gifts & Donations', budget: 0, color: '#65a30d', spent: 0, type: 'Personal & Lifestyle' }
-        ];
-    }
-
-    getDefaultSubCategories() {
-        return [
-            { id: 1, parentId: 17, name: 'Netflix', budget: 0, color: '#ea580c', spent: 0 },
-            { id: 2, parentId: 17, name: 'Spotify', budget: 0, color: '#ea580c', spent: 0 },
-            { id: 3, parentId: 17, name: 'Gym Membership', budget: 0, color: '#ea580c', spent: 0 }
-        ];
+        return {
+            'Fixed Expenses': [
+                { name: 'Rent/Mortgage', budget: 0, type: 'shared', icon: 'fas fa-home' },
+                { name: 'Utilities', budget: 0, type: 'shared', icon: 'fas fa-bolt' },
+                { name: 'Insurance', budget: 0, type: 'shared', icon: 'fas fa-shield-alt' },
+                { name: 'Phone/Internet', budget: 0, type: 'shared', icon: 'fas fa-wifi' },
+                { name: 'Car Payment', budget: 0, type: 'shared', icon: 'fas fa-car' }
+            ],
+            'Variable Expenses': [
+                { name: 'Groceries', budget: 0, type: 'shared', icon: 'fas fa-shopping-cart' },
+                { name: 'Gas/Transportation', budget: 0, type: 'shared', icon: 'fas fa-gas-pump' },
+                { name: 'Dining Out', budget: 0, type: 'shared', icon: 'fas fa-utensils' },
+                { name: 'Entertainment', budget: 0, type: 'shared', icon: 'fas fa-film' },
+                { name: 'Shopping', budget: 0, type: 'personal', icon: 'fas fa-shopping-bag' }
+            ],
+            'Savings & Investments': [
+                { name: 'Emergency Fund', budget: 0, type: 'shared', icon: 'fas fa-piggy-bank' },
+                { name: 'Retirement', budget: 0, type: 'shared', icon: 'fas fa-chart-line' },
+                { name: 'Investments', budget: 0, type: 'shared', icon: 'fas fa-coins' }
+            ],
+            'Personal & Lifestyle': [
+                { name: 'Subscriptions', budget: 0, type: 'shared', icon: 'fas fa-credit-card', 
+                  subCategories: [
+                      { name: 'Netflix', budget: 0 },
+                      { name: 'Spotify', budget: 0 },
+                      { name: 'Gym Membership', budget: 0 }
+                  ]},
+                { name: 'Personal Care', budget: 0, type: 'personal', icon: 'fas fa-spa' },
+                { name: 'Hobbies', budget: 0, type: 'personal', icon: 'fas fa-palette' },
+                { name: 'Gifts', budget: 0, type: 'personal', icon: 'fas fa-gift' }
+            ]
+        };
     }
 
     initializeApp() {
+        // Set default date to today
         document.getElementById('transactionDate').value = new Date().toISOString().split('T')[0];
-        this.updateCategoryDropdown();
-        document.getElementById('netIncome').value = this.netIncome;
+        
+        // Initialize budget mode
+        this.updateBudgetModeUI();
     }
 
     setupEventListeners() {
-        // Budget setup controls
-        document.getElementById('setupBudgetBtn').addEventListener('click', () => this.showBudgetSetup());
+        // Budget mode toggle
+        document.getElementById('personalModeBtn').addEventListener('click', () => this.setBudgetMode('personal'));
+        document.getElementById('householdModeBtn').addEventListener('click', () => this.setBudgetMode('household'));
+
+        // Setup and transaction buttons
+        document.getElementById('setupBudgetBtn').addEventListener('click', () => this.toggleBudgetSetup());
+        document.getElementById('addTransactionBtn').addEventListener('click', () => this.openModal('transactionModal'));
+
+        // Budget setup
         document.getElementById('saveBudgetBtn').addEventListener('click', () => this.saveBudget());
         document.getElementById('addCustomCategoryBtn').addEventListener('click', () => this.openModal('customCategoryModal'));
 
-        // Modal controls
-        document.getElementById('addTransactionBtn').addEventListener('click', () => this.openModal('transactionModal'));
+        // Income inputs for household mode
+        document.getElementById('yourIncomeInput').addEventListener('input', () => this.updateHouseholdIncome());
+        document.getElementById('partnerIncomeInput').addEventListener('input', () => this.updateHouseholdIncome());
+
+        // Partner management
+        document.getElementById('editPartnerBtn').addEventListener('click', () => this.openModal('editPartnerModal'));
+
+        // Joint goals
+        document.getElementById('addJointGoalBtn').addEventListener('click', () => this.openModal('jointGoalModal'));
+
+        // Category management
         document.getElementById('addCategoryBtn').addEventListener('click', () => this.openModal('categoryModal'));
 
-        // Close modals
+        // Form submissions
+        document.getElementById('transactionForm').addEventListener('submit', (e) => this.handleTransactionSubmit(e));
+        document.getElementById('categoryForm').addEventListener('submit', (e) => this.handleCategorySubmit(e));
+        document.getElementById('customCategoryForm').addEventListener('submit', (e) => this.handleCustomCategorySubmit(e));
+        document.getElementById('jointGoalForm').addEventListener('submit', (e) => this.handleJointGoalSubmit(e));
+        document.getElementById('editPartnerForm').addEventListener('submit', (e) => this.handlePartnerSubmit(e));
+
+        // Modal close buttons
         document.querySelectorAll('.close').forEach(closeBtn => {
-            closeBtn.addEventListener('click', (e) => this.closeModal(e.target.closest('.modal').id));
+            closeBtn.addEventListener('click', () => this.closeAllModals());
         });
 
+        // Close modals when clicking outside
         window.addEventListener('click', (e) => {
             if (e.target.classList.contains('modal')) {
-                this.closeModal(e.target.id);
+                this.closeAllModals();
             }
         });
 
-        // Form submissions
-        document.getElementById('transactionForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.addTransaction();
-        });
-
-        document.getElementById('categoryForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.addCategory();
-        });
-
-        document.getElementById('customCategoryForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.addCustomCategory();
-        });
-
-        document.getElementById('subCategoryForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.addSubCategory();
-        });
-
-        // Real-time updates
-        document.getElementById('transactionType').addEventListener('change', () => this.updateCategoryDropdown());
+        // Income input for personal mode
         document.getElementById('netIncome').addEventListener('input', () => this.updateBudgetAllocation());
     }
 
-    showBudgetSetup() {
-        document.getElementById('budgetSetupSection').style.display = 'block';
-        this.updateBudgetSetupCategories();
+    setBudgetMode(mode) {
+        this.budgetMode = mode;
+        this.updateBudgetModeUI();
+        this.updateUI();
+        this.saveData();
+    }
+
+    updateBudgetModeUI() {
+        const personalBtn = document.getElementById('personalModeBtn');
+        const householdBtn = document.getElementById('householdModeBtn');
+        const householdFeatures = document.getElementById('householdFeatures');
+        const personalSetup = document.getElementById('personalSetup');
+        const householdSetup = document.getElementById('householdSetup');
+        const householdCard = document.getElementById('householdCard');
+        const incomeLabel = document.getElementById('incomeLabel');
+
+        if (this.budgetMode === 'personal') {
+            personalBtn.classList.add('active');
+            householdBtn.classList.remove('active');
+            householdFeatures.style.display = 'none';
+            personalSetup.style.display = 'block';
+            householdSetup.style.display = 'none';
+            householdCard.style.display = 'none';
+            incomeLabel.textContent = 'Net Income';
+        } else {
+            personalBtn.classList.remove('active');
+            householdBtn.classList.add('active');
+            householdFeatures.style.display = 'block';
+            personalSetup.style.display = 'none';
+            householdSetup.style.display = 'block';
+            householdCard.style.display = 'flex';
+            incomeLabel.textContent = 'Total Income';
+        }
+    }
+
+    updateHouseholdIncome() {
+        const yourIncome = parseFloat(document.getElementById('yourIncomeInput').value) || 0;
+        const partnerIncome = parseFloat(document.getElementById('partnerIncomeInput').value) || 0;
+        const total = yourIncome + partnerIncome;
+
+        this.yourIncome = yourIncome;
+        this.partner.income = partnerIncome;
+
+        document.getElementById('totalHouseholdIncome').textContent = this.formatCurrency(total);
+        document.getElementById('yourIncome').textContent = this.formatCurrency(yourIncome);
+        document.getElementById('partnerIncome').textContent = this.formatCurrency(partnerIncome);
+
+        // Calculate contribution percentages
+        if (total > 0) {
+            const yourContribution = ((yourIncome / total) * 100).toFixed(1);
+            const partnerContribution = ((partnerIncome / total) * 100).toFixed(1);
+            
+            document.getElementById('yourContribution').textContent = yourContribution + '%';
+            document.getElementById('partnerContribution').textContent = partnerContribution + '%';
+        }
+
         this.updateBudgetAllocation();
     }
 
-    hideBudgetSetup() {
-        document.getElementById('budgetSetupSection').style.display = 'none';
+    toggleBudgetSetup() {
+        const setupSection = document.getElementById('budgetSetupSection');
+        const isVisible = setupSection.style.display !== 'none';
+        
+        if (isVisible) {
+            setupSection.style.display = 'none';
+        } else {
+            setupSection.style.display = 'block';
+            this.renderBudgetCategories();
+        }
     }
 
-    updateBudgetSetupCategories() {
+    renderBudgetCategories() {
         const container = document.getElementById('budgetCategoriesSetup');
         container.innerHTML = '';
 
-        // Group categories by type
-        const categoriesByType = this.categories.reduce((acc, category) => {
-            if (!acc[category.type]) acc[category.type] = [];
-            acc[category.type].push(category);
-            return acc;
-        }, {});
-
-        // Create sections for each type
-        Object.entries(categoriesByType).forEach(([type, categories]) => {
-            const typeSection = document.createElement('div');
-            typeSection.className = 'category-type-section';
-            
-            typeSection.innerHTML = `
-                <h4 class="category-type-header">${type}</h4>
-                ${categories.map(category => this.createCategorySetupCard(category)).join('')}
+        Object.entries(this.categories).forEach(([groupName, categories]) => {
+            const groupDiv = document.createElement('div');
+            groupDiv.className = 'category-group';
+            groupDiv.innerHTML = `
+                <h3><i class="fas fa-folder"></i> ${groupName}</h3>
             `;
-            
-            container.appendChild(typeSection);
+
+            categories.forEach(category => {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'category-item';
+                categoryDiv.innerHTML = `
+                    <div class="category-header">
+                        <div class="category-name">
+                            <i class="${category.icon}"></i>
+                            ${category.name}
+                            <span class="category-type-badge ${category.type}">${category.type}</span>
+                        </div>
+                        <div class="category-budget">
+                            <span class="currency-symbol">$</span>
+                            <input type="number" 
+                                   class="category-budget-input" 
+                                   data-category="${category.name}" 
+                                   data-group="${groupName}"
+                                   value="${category.budget}" 
+                                   step="0.01" 
+                                   min="0"
+                                   placeholder="0.00">
+                        </div>
+                    </div>
+                    ${category.subCategories ? this.renderSubCategories(category) : ''}
+                `;
+
+                // Add event listener for budget input
+                const budgetInput = categoryDiv.querySelector('.category-budget-input');
+                budgetInput.addEventListener('input', () => this.updateBudgetAllocation());
+
+                groupDiv.appendChild(categoryDiv);
+            });
+
+            container.appendChild(groupDiv);
         });
     }
 
-    createCategorySetupCard(category) {
-        const subCategories = this.subCategories.filter(sub => sub.parentId === category.id);
-        const hasSubCategories = category.hasSubCategories && subCategories.length > 0;
+    renderSubCategories(category) {
+        if (!category.subCategories) return '';
         
-        let subCategoriesHtml = '';
-        if (category.hasSubCategories) {
-            if (hasSubCategories) {
-                subCategoriesHtml = `
-                    <div class="sub-categories-setup">
-                        <div class="sub-categories-header">
-                            <span>Sub-categories:</span>
-                            <button type="button" class="btn btn-small" onclick="budgetTracker.openSubCategoryModal(${category.id})">
-                                <i class="fas fa-plus"></i> Add Sub-category
-                            </button>
-                        </div>
-                        <div class="sub-categories-list">
-                            ${subCategories.map(sub => `
-                                <div class="sub-category-setup-item">
-                                    <span>${sub.name}</span>
-                                    <input type="number" 
-                                           class="sub-category-setup-input" 
-                                           data-sub-category-id="${sub.id}"
-                                           placeholder="0.00" 
-                                           step="0.01" 
-                                           min="0" 
-                                           value="${sub.budget}"
-                                           oninput="budgetTracker.updateBudgetAllocation()">
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-            } else {
-                subCategoriesHtml = `
-                    <div class="sub-categories-setup">
-                        <button type="button" class="btn btn-small" onclick="budgetTracker.openSubCategoryModal(${category.id})">
-                            <i class="fas fa-plus"></i> Add Sub-category
-                        </button>
-                    </div>
-                `;
-            }
-        }
-
         return `
-            <div class="category-setup-card">
-                <div class="category-setup-header">
-                    <span class="category-setup-name">${category.name}</span>
-                    <div class="category-setup-color" style="background-color: ${category.color}"></div>
-                </div>
-                <input type="number" 
-                       class="category-setup-input" 
-                       data-category-id="${category.id}"
-                       placeholder="0.00" 
-                       step="0.01" 
-                       min="0" 
-                       value="${category.budget}"
-                       oninput="budgetTracker.updateBudgetAllocation()">
-                ${subCategoriesHtml}
+            <div class="sub-categories">
+                ${category.subCategories.map(sub => `
+                    <div class="sub-category-item">
+                        <div class="sub-category-header">
+                            <div class="sub-category-name">${sub.name}</div>
+                            <div class="sub-category-budget">
+                                <span class="currency-symbol">$</span>
+                                <input type="number" 
+                                       class="sub-category-budget-input" 
+                                       data-category="${category.name}" 
+                                       data-subcategory="${sub.name}"
+                                       value="${sub.budget}" 
+                                       step="0.01" 
+                                       min="0"
+                                       placeholder="0.00">
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
             </div>
         `;
     }
 
-    openSubCategoryModal(parentCategoryId) {
-        this.currentParentCategoryId = parentCategoryId;
-        this.openModal('subCategoryModal');
-    }
-
     updateBudgetAllocation() {
-        const netIncome = parseFloat(document.getElementById('netIncome').value) || 0;
-        let allocated = 0;
+        let totalBudget = 0;
+        let allocatedBudget = 0;
 
-        // Calculate total allocated budget
-        document.querySelectorAll('.category-setup-input').forEach(input => {
-            const amount = parseFloat(input.value) || 0;
-            allocated += amount;
-            
-            const categoryId = parseInt(input.dataset.categoryId);
-            const category = this.categories.find(c => c.id === categoryId);
-            if (category) category.budget = amount;
+        // Calculate total available budget
+        if (this.budgetMode === 'personal') {
+            totalBudget = parseFloat(document.getElementById('netIncome').value) || 0;
+        } else {
+            totalBudget = this.yourIncome + this.partner.income;
+        }
+
+        // Calculate allocated budget
+        document.querySelectorAll('.category-budget-input').forEach(input => {
+            allocatedBudget += parseFloat(input.value) || 0;
         });
 
-        document.querySelectorAll('.sub-category-setup-input').forEach(input => {
-            const amount = parseFloat(input.value) || 0;
-            allocated += amount;
-            
-            const subCategoryId = parseInt(input.dataset.subCategoryId);
-            const subCategory = this.subCategories.find(s => s.id === subCategoryId);
-            if (subCategory) subCategory.budget = amount;
+        document.querySelectorAll('.sub-category-budget-input').forEach(input => {
+            allocatedBudget += parseFloat(input.value) || 0;
         });
+
+        const remaining = totalBudget - allocatedBudget;
 
         // Update display
-        document.getElementById('allocatedAmount').textContent = this.formatCurrency(allocated);
-        document.getElementById('remainingAmount').textContent = this.formatCurrency(netIncome - allocated);
+        document.getElementById('allocatedAmount').textContent = this.formatCurrency(allocatedBudget);
+        document.getElementById('remainingAmount').textContent = this.formatCurrency(remaining);
 
-        // Visual warnings
-        this.updateBudgetWarnings(allocated, netIncome);
-    }
-
-    updateBudgetWarnings(allocated, netIncome) {
-        const inputs = document.querySelectorAll('.category-setup-input, .sub-category-setup-input');
+        // Update budget summary styling
         const remainingElement = document.getElementById('remainingAmount');
-        
-        inputs.forEach(input => {
-            input.classList.remove('warning', 'error');
-            
-            if (allocated > netIncome) {
-                input.classList.add('error');
-            } else if (allocated > netIncome * 0.95) {
-                input.classList.add('warning');
-            }
-        });
-
-        // Update remaining amount color
-        const remaining = netIncome - allocated;
-        if (remaining < 0) {
-            remainingElement.style.color = '#ef4444';
-        } else if (remaining < netIncome * 0.05) {
-            remainingElement.style.color = '#f59e0b';
-        } else {
-            remainingElement.style.color = '#10b981';
-        }
+        remainingElement.className = remaining < 0 ? 'warning' : 'success';
     }
 
     saveBudget() {
-        const netIncome = parseFloat(document.getElementById('netIncome').value) || 0;
-        const allocated = this.categories.reduce((sum, cat) => sum + cat.budget, 0) + 
-                         this.subCategories.reduce((sum, sub) => sum + sub.budget, 0);
+        // Update category budgets from inputs
+        document.querySelectorAll('.category-budget-input').forEach(input => {
+            const categoryName = input.dataset.category;
+            const groupName = input.dataset.group;
+            const budget = parseFloat(input.value) || 0;
 
-        if (allocated > netIncome) {
-            if (!confirm('Warning: Your allocated budget exceeds your net income! Do you want to save anyway?')) {
-                return;
+            // Find and update the category
+            const category = this.categories[groupName].find(cat => cat.name === categoryName);
+            if (category) {
+                category.budget = budget;
             }
-        }
+        });
 
-        this.netIncome = netIncome;
-        this.saveData();
-        this.updateUI();
-        this.hideBudgetSetup();
-        this.showSuccessMessage('Budget saved successfully!');
-    }
+        // Update sub-category budgets
+        document.querySelectorAll('.sub-category-budget-input').forEach(input => {
+            const categoryName = input.dataset.category;
+            const subCategoryName = input.dataset.subcategory;
+            const budget = parseFloat(input.value) || 0;
 
-    openModal(modalId) {
-        document.getElementById(modalId).style.display = 'block';
-    }
-
-    closeModal(modalId) {
-        document.getElementById(modalId).style.display = 'none';
-        
-        // Reset forms
-        const formMap = {
-            'transactionModal': 'transactionForm',
-            'categoryModal': 'categoryForm',
-            'customCategoryModal': 'customCategoryForm',
-            'subCategoryModal': 'subCategoryForm'
-        };
-        
-        const formId = formMap[modalId];
-        if (formId) {
-            document.getElementById(formId).reset();
-            if (modalId === 'transactionModal') {
-                document.getElementById('transactionDate').value = new Date().toISOString().split('T')[0];
-            }
-        }
-    }
-
-    updateCategoryDropdown() {
-        const type = document.getElementById('transactionType').value;
-        const categorySelect = document.getElementById('transactionCategory');
-        
-        categorySelect.innerHTML = '<option value="">Select Category</option>';
-        
-        if (type === 'expense') {
-            this.categories.forEach(category => {
-                const option = document.createElement('option');
-                option.value = category.id;
-                option.textContent = category.name;
-                categorySelect.appendChild(option);
-
-                if (category.hasSubCategories) {
-                    const subCategories = this.subCategories.filter(sub => sub.parentId === category.id);
-                    subCategories.forEach(subCategory => {
-                        const subOption = document.createElement('option');
-                        subOption.value = `sub_${subCategory.id}`;
-                        subOption.textContent = `  └ ${subCategory.name}`;
-                        categorySelect.appendChild(subOption);
-                    });
+            // Find and update the sub-category
+            Object.values(this.categories).forEach(group => {
+                const category = group.find(cat => cat.name === categoryName);
+                if (category && category.subCategories) {
+                    const subCategory = category.subCategories.find(sub => sub.name === subCategoryName);
+                    if (subCategory) {
+                        subCategory.budget = budget;
+                    }
                 }
             });
+        });
+
+        // Save income
+        if (this.budgetMode === 'personal') {
+            this.yourIncome = parseFloat(document.getElementById('netIncome').value) || 0;
         }
+
+        this.saveData();
+        this.toggleBudgetSetup();
+        this.updateUI();
+        this.showNotification('Budget saved successfully!', 'success');
     }
 
-    addTransaction() {
-        const formData = this.getFormData('transactionForm');
-        
-        if (!this.validateTransaction(formData)) return;
+    handleTransactionSubmit(e) {
+        e.preventDefault();
 
-        const isSubCategory = formData.categoryId.startsWith('sub_');
-        const actualCategoryId = isSubCategory ? 
-            parseInt(formData.categoryId.replace('sub_', '')) : 
-            parseInt(formData.categoryId);
-
+        const formData = new FormData(e.target);
         const transaction = {
             id: Date.now(),
-            type: formData.type,
-            amount: parseFloat(formData.amount),
-            categoryId: actualCategoryId,
-            isSubCategory,
-            description: formData.description,
-            date: formData.date,
-            timestamp: new Date().toISOString()
+            type: formData.get('transactionType'),
+            amount: parseFloat(formData.get('transactionAmount')),
+            category: formData.get('transactionCategory'),
+            description: formData.get('transactionDescription'),
+            date: formData.get('transactionDate'),
+            owner: this.budgetMode === 'household' ? formData.get('transactionOwner') : 'you',
+            splitType: this.budgetMode === 'household' ? formData.get('splitType') : '50-50'
         };
 
         this.transactions.push(transaction);
         this.saveData();
         this.updateUI();
-        this.closeModal('transactionModal');
-        this.showSuccessMessage('Transaction added successfully!');
-    }
-
-    validateTransaction(data) {
-        if (!data.amount || !data.description || (data.type === 'expense' && !data.categoryId)) {
-            this.showErrorMessage('Please fill in all required fields');
-            return false;
-        }
-        return true;
-    }
-
-    addCategory() {
-        const formData = this.getFormData('categoryForm');
+        this.closeAllModals();
+        e.target.reset();
+        document.getElementById('transactionDate').value = new Date().toISOString().split('T')[0];
         
-        if (!formData.name || !formData.budget) {
-            this.showErrorMessage('Please fill in all required fields');
-            return;
-        }
+        this.showNotification('Transaction added successfully!', 'success');
+    }
 
-        const category = {
-            id: Date.now(),
-            name: formData.name,
-            budget: parseFloat(formData.budget),
-            color: formData.color,
-            spent: 0,
-            type: 'Custom'
+    handleCategorySubmit(e) {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        
+        const newCategory = {
+            name: formData.get('categoryName'),
+            budget: parseFloat(formData.get('categoryBudget')) || 0,
+            type: formData.get('categoryType'),
+            color: formData.get('categoryColor'),
+            icon: 'fas fa-tag'
         };
 
-        this.categories.push(category);
+        this.customCategories.push(newCategory);
         this.saveData();
         this.updateUI();
-        this.closeModal('categoryModal');
-        this.showSuccessMessage('Category added successfully!');
+        this.closeAllModals();
+        e.target.reset();
+        
+        this.showNotification('Category added successfully!', 'success');
     }
 
-    addCustomCategory() {
-        const formData = this.getFormData('customCategoryForm');
+    handleCustomCategorySubmit(e) {
+        e.preventDefault();
+        const formData = new FormData(e.target);
         
-        if (!formData.name || !formData.budget) {
-            this.showErrorMessage('Please fill in all required fields');
-            return;
-        }
-
-        const category = {
-            id: Date.now(),
-            name: formData.name,
-            budget: parseFloat(formData.budget),
-            color: formData.color,
-            spent: 0,
-            type: 'Custom'
+        const newCategory = {
+            name: formData.get('customCategoryName'),
+            budget: parseFloat(formData.get('customCategoryBudget')) || 0,
+            type: formData.get('customCategoryType'),
+            color: formData.get('customCategoryColor'),
+            icon: 'fas fa-tag'
         };
 
-        this.categories.push(category);
+        this.customCategories.push(newCategory);
         this.saveData();
         this.updateUI();
-        this.closeModal('customCategoryModal');
+        this.closeAllModals();
+        e.target.reset();
         
-        if (document.getElementById('budgetSetupSection').style.display !== 'none') {
-            this.updateBudgetSetupCategories();
-            this.updateBudgetAllocation();
-        }
-        
-        this.showSuccessMessage('Custom category added successfully!');
+        this.showNotification('Custom category added successfully!', 'success');
     }
 
-    addSubCategory() {
-        const formData = this.getFormData('subCategoryForm');
+    handleJointGoalSubmit(e) {
+        e.preventDefault();
+        const formData = new FormData(e.target);
         
-        if (!formData.name || !formData.budget) {
-            this.showErrorMessage('Please fill in all required fields');
-            return;
-        }
-
-        const parentCategory = this.categories.find(c => c.id === this.currentParentCategoryId);
-        const subCategory = {
+        const newGoal = {
             id: Date.now(),
-            parentId: this.currentParentCategoryId,
-            name: formData.name,
-            budget: parseFloat(formData.budget),
-            color: parentCategory.color,
-            spent: 0
+            name: formData.get('goalName'),
+            target: parseFloat(formData.get('goalTarget')) || 0,
+            deadline: formData.get('goalDeadline'),
+            icon: formData.get('goalIcon'),
+            current: 0,
+            contributions: {
+                you: 0,
+                partner: 0
+            }
         };
 
-        this.subCategories.push(subCategory);
+        this.jointGoals.push(newGoal);
         this.saveData();
         this.updateUI();
-        this.closeModal('subCategoryModal');
+        this.closeAllModals();
+        e.target.reset();
         
-        if (document.getElementById('budgetSetupSection').style.display !== 'none') {
-            this.updateBudgetSetupCategories();
-            this.updateBudgetAllocation();
-        }
-        
-        this.showSuccessMessage('Sub-category added successfully!');
+        this.showNotification('Joint goal created successfully!', 'success');
     }
 
-    getFormData(formId) {
-        const form = document.getElementById(formId);
-        const formData = new FormData(form);
-        const data = {};
+    handlePartnerSubmit(e) {
+        e.preventDefault();
+        const formData = new FormData(e.target);
         
-        for (let [key, value] of formData.entries()) {
-            data[key] = value;
-        }
-        
-        return data;
-    }
+        this.partner.name = formData.get('partnerName');
+        this.partner.income = parseFloat(formData.get('partnerIncomeEdit')) || 0;
+        this.partner.color = formData.get('partnerColor');
 
-    saveData() {
-        localStorage.setItem('transactions', JSON.stringify(this.transactions));
-        localStorage.setItem('categories', JSON.stringify(this.categories));
-        localStorage.setItem('subCategories', JSON.stringify(this.subCategories));
-        localStorage.setItem('netIncome', this.netIncome.toString());
+        this.saveData();
+        this.updateUI();
+        this.closeAllModals();
+        e.target.reset();
+        
+        this.showNotification('Partner information updated!', 'success');
     }
 
     updateUI() {
-        this.updateOverview();
-        this.updateCategories();
+        this.updateDashboard();
+        this.updateBudgetCategories();
         this.updateTransactions();
+        this.updateJointGoals();
     }
 
-    updateOverview() {
-        const currentMonthTransactions = this.getCurrentMonthTransactions();
-        const totalIncome = this.netIncome;
-        const totalExpenses = currentMonthTransactions
-            .filter(t => t.type === 'expense')
-            .reduce((sum, t) => sum + t.amount, 0);
+    updateDashboard() {
+        const totalIncome = this.budgetMode === 'personal' ? this.yourIncome : (this.yourIncome + this.partner.income);
+        const totalExpenses = this.calculateTotalExpenses();
         const remainingBudget = totalIncome - totalExpenses;
+        const sharedExpenses = this.calculateSharedExpenses();
 
         document.getElementById('totalIncome').textContent = this.formatCurrency(totalIncome);
         document.getElementById('totalExpenses').textContent = this.formatCurrency(totalExpenses);
         document.getElementById('remainingBudget').textContent = this.formatCurrency(remainingBudget);
-        
-        this.updateRemainingBudgetColor(remainingBudget, totalIncome);
+        document.getElementById('sharedExpenses').textContent = this.formatCurrency(sharedExpenses);
     }
 
-    updateRemainingBudgetColor(remaining, total) {
-        const element = document.getElementById('remainingBudget');
-        if (remaining < 0) {
-            element.style.color = '#ef4444';
-        } else if (remaining < total * 0.1) {
-            element.style.color = '#f59e0b';
-        } else {
-            element.style.color = '#10b981';
-        }
-    }
+    updateBudgetCategories() {
+        const container = document.getElementById('budgetCategories');
+        container.innerHTML = '';
 
-    updateCategories() {
-        const categoriesContainer = document.getElementById('budgetCategories');
-        categoriesContainer.innerHTML = '';
-
-        this.resetSpentAmounts();
-        this.calculateSpentAmounts();
-
-        const categoriesByType = this.categories
-            .filter(category => category.budget > 0)
-            .reduce((acc, category) => {
-                if (!acc[category.type]) acc[category.type] = [];
-                acc[category.type].push(category);
-                return acc;
-            }, {});
-
-        Object.entries(categoriesByType).forEach(([type, categories]) => {
-            const typeSection = document.createElement('div');
-            typeSection.className = 'category-type-section';
-            
-            typeSection.innerHTML = `
-                <h3 class="category-type-header">${type}</h3>
-                <div class="categories-list">
-                    ${categories.map(category => this.createCategoryItem(category)).join('')}
-                </div>
+        // Render default categories
+        Object.entries(this.categories).forEach(([groupName, categories]) => {
+            const groupDiv = document.createElement('div');
+            groupDiv.className = 'category-group';
+            groupDiv.innerHTML = `
+                <h3><i class="fas fa-folder"></i> ${groupName}</h3>
             `;
-            
-            categoriesContainer.appendChild(typeSection);
+
+            categories.forEach(category => {
+                const spent = this.calculateCategorySpent(category.name);
+                const percentage = category.budget > 0 ? (spent / category.budget) * 100 : 0;
+                const status = this.getProgressStatus(percentage);
+
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = `category-item ${category.type}`;
+                categoryDiv.innerHTML = `
+                    <div class="category-header">
+                        <div class="category-name">
+                            <i class="${category.icon}"></i>
+                            ${category.name}
+                            <span class="category-type-badge ${category.type}">${category.type}</span>
+                        </div>
+                        <div class="category-budget">
+                            ${this.formatCurrency(spent)} / ${this.formatCurrency(category.budget)}
+                        </div>
+                    </div>
+                    <div class="category-progress">
+                        <div class="progress-container">
+                            <span>${percentage.toFixed(1)}%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill ${status}" style="width: ${Math.min(percentage, 100)}%"></div>
+                        </div>
+                        <div class="progress-labels">
+                            <span>Spent: ${this.formatCurrency(spent)}</span>
+                            <span>Remaining: ${this.formatCurrency(category.budget - spent)}</span>
+                        </div>
+                    </div>
+                    ${category.subCategories ? this.renderSubCategoriesDisplay(category) : ''}
+                `;
+
+                groupDiv.appendChild(categoryDiv);
+            });
+
+            container.appendChild(groupDiv);
         });
-    }
 
-    createCategoryItem(category) {
-        const percentage = (category.spent / category.budget) * 100;
-        const progressColor = percentage > 100 ? '#ef4444' : 
-                            percentage > 80 ? '#f59e0b' : '#10b981';
+        // Render custom categories
+        if (this.customCategories.length > 0) {
+            const customGroupDiv = document.createElement('div');
+            customGroupDiv.className = 'category-group';
+            customGroupDiv.innerHTML = `
+                <h3><i class="fas fa-tags"></i> Custom Categories</h3>
+            `;
 
-        let subCategoriesHtml = '';
-        if (category.hasSubCategories) {
-            const subCategories = this.subCategories.filter(sub => sub.parentId === category.id && sub.budget > 0);
-            if (subCategories.length > 0) {
-                subCategoriesHtml = `
-                    <div class="sub-categories-list">
-                        ${subCategories.map(sub => this.createSubCategoryItem(sub)).join('')}
+            this.customCategories.forEach(category => {
+                const spent = this.calculateCategorySpent(category.name);
+                const percentage = category.budget > 0 ? (spent / category.budget) * 100 : 0;
+                const status = this.getProgressStatus(percentage);
+
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = `category-item ${category.type}`;
+                categoryDiv.innerHTML = `
+                    <div class="category-header">
+                        <div class="category-name">
+                            <i class="${category.icon}"></i>
+                            ${category.name}
+                            <span class="category-type-badge ${category.type}">${category.type}</span>
+                        </div>
+                        <div class="category-budget">
+                            ${this.formatCurrency(spent)} / ${this.formatCurrency(category.budget)}
+                        </div>
+                    </div>
+                    <div class="category-progress">
+                        <div class="progress-container">
+                            <span>${percentage.toFixed(1)}%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill ${status}" style="width: ${Math.min(percentage, 100)}%"></div>
+                        </div>
+                        <div class="progress-labels">
+                            <span>Spent: ${this.formatCurrency(spent)}</span>
+                            <span>Remaining: ${this.formatCurrency(category.budget - spent)}</span>
+                        </div>
                     </div>
                 `;
-            }
+
+                customGroupDiv.appendChild(categoryDiv);
+            });
+
+            container.appendChild(customGroupDiv);
         }
-
-        return `
-            <div class="category-list-item" style="border-left-color: ${category.color}">
-                <div class="category-item-header">
-                    <span class="category-item-name">${category.name}</span>
-                    <span class="category-item-budget">${this.formatCurrency(category.budget)}</span>
-                </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: ${Math.min(percentage, 100)}%; background-color: ${progressColor}"></div>
-                </div>
-                <div class="category-item-spent">
-                    ${this.formatCurrency(category.spent)} / ${this.formatCurrency(category.budget)}
-                    ${percentage > 100 ? ` (${this.formatCurrency(category.spent - category.budget)} over budget)` : ''}
-                </div>
-                ${subCategoriesHtml}
-            </div>
-        `;
     }
 
-    createSubCategoryItem(subCategory) {
-        const percentage = (subCategory.spent / subCategory.budget) * 100;
-        const progressColor = percentage > 100 ? '#ef4444' : 
-                            percentage > 80 ? '#f59e0b' : '#10b981';
+    renderSubCategoriesDisplay(category) {
+        if (!category.subCategories) return '';
+        
+        const subCategoriesHtml = category.subCategories.map(sub => {
+            const spent = this.calculateSubCategorySpent(category.name, sub.name);
+            const percentage = sub.budget > 0 ? (spent / sub.budget) * 100 : 0;
+            const status = this.getProgressStatus(percentage);
 
-        return `
-            <div class="sub-category-item">
-                <div class="sub-category-header">
-                    <span class="sub-category-name">└ ${subCategory.name}</span>
-                    <span class="sub-category-budget">${this.formatCurrency(subCategory.budget)}</span>
+            return `
+                <div class="sub-category-item">
+                    <div class="sub-category-header">
+                        <div class="sub-category-name">${sub.name}</div>
+                        <div class="sub-category-budget">
+                            ${this.formatCurrency(spent)} / ${this.formatCurrency(sub.budget)}
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill ${status}" style="width: ${Math.min(percentage, 100)}%"></div>
+                    </div>
                 </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: ${Math.min(percentage, 100)}%; background-color: ${progressColor}"></div>
-                </div>
-                <div class="sub-category-spent">
-                    ${this.formatCurrency(subCategory.spent)} / ${this.formatCurrency(subCategory.budget)}
-                    ${percentage > 100 ? ` (${this.formatCurrency(subCategory.spent - subCategory.budget)} over budget)` : ''}
-                </div>
-            </div>
-        `;
-    }
+            `;
+        }).join('');
 
-    resetSpentAmounts() {
-        this.categories.forEach(category => category.spent = 0);
-        this.subCategories.forEach(subCategory => subCategory.spent = 0);
-    }
-
-    calculateSpentAmounts() {
-        const currentMonthTransactions = this.getCurrentMonthTransactions()
-            .filter(t => t.type === 'expense');
-
-        currentMonthTransactions.forEach(transaction => {
-            if (transaction.isSubCategory) {
-                const subCategory = this.subCategories.find(s => s.id === transaction.categoryId);
-                if (subCategory) subCategory.spent += transaction.amount;
-            } else {
-                const category = this.categories.find(c => c.id === transaction.categoryId);
-                if (category) category.spent += transaction.amount;
-            }
-        });
-    }
-
-    getCurrentMonthTransactions() {
-        return this.transactions.filter(t => {
-            const transactionDate = new Date(t.date);
-            return transactionDate.getMonth() === this.currentMonth && 
-                   transactionDate.getFullYear() === this.currentYear;
-        });
+        return `<div class="sub-categories">${subCategoriesHtml}</div>`;
     }
 
     updateTransactions() {
-        const transactionsContainer = document.getElementById('transactionsList');
+        const container = document.getElementById('transactionsList');
+        container.innerHTML = '';
+
         const recentTransactions = this.transactions
             .sort((a, b) => new Date(b.date) - new Date(a.date))
             .slice(0, 10);
 
         if (recentTransactions.length === 0) {
-            transactionsContainer.innerHTML = `
-                <div class="empty-state">
+            container.innerHTML = `
+                <div class="empty-transactions">
                     <i class="fas fa-receipt"></i>
                     <p>No transactions yet. Add your first transaction!</p>
                 </div>
@@ -641,60 +602,107 @@ class BudgetTracker {
             return;
         }
 
-        transactionsContainer.innerHTML = recentTransactions
-            .map(transaction => this.createTransactionItem(transaction))
-            .join('');
-    }
+        recentTransactions.forEach(transaction => {
+            const transactionDiv = document.createElement('div');
+            transactionDiv.className = `transaction-item ${transaction.type}`;
+            
+            const householdInfo = this.budgetMode === 'household' ? `
+                <div class="household-transaction-info">
+                    <span class="transaction-owner ${transaction.owner}">${transaction.owner}</span>
+                    <span>• ${transaction.splitType}</span>
+                </div>
+            ` : '';
 
-    createTransactionItem(transaction) {
-        let categoryName = 'Uncategorized';
-        if (transaction.isSubCategory) {
-            const subCategory = this.subCategories.find(s => s.id === transaction.categoryId);
-            if (subCategory) categoryName = subCategory.name;
-        } else {
-            const category = this.categories.find(c => c.id === transaction.categoryId);
-            if (category) categoryName = category.name;
-        }
-
-        const iconClass = transaction.type === 'income' ? 'fas fa-arrow-down' : 'fas fa-arrow-up';
-        const iconColor = transaction.type === 'income' ? '#10b981' : '#ef4444';
-
-        return `
-            <div class="transaction-item">
+            transactionDiv.innerHTML = `
                 <div class="transaction-info">
-                    <div class="transaction-icon" style="background-color: ${iconColor}">
-                        <i class="${iconClass}"></i>
-                    </div>
+                    <div class="transaction-description">${transaction.description}</div>
                     <div class="transaction-details">
-                        <h4>${transaction.description}</h4>
-                        <p>${categoryName} • ${this.formatDate(transaction.date)}</p>
+                        <span>${transaction.category}</span>
+                        <span>${new Date(transaction.date).toLocaleDateString()}</span>
                     </div>
+                    ${householdInfo}
                 </div>
                 <div class="transaction-amount ${transaction.type}">
                     ${transaction.type === 'income' ? '+' : '-'}${this.formatCurrency(transaction.amount)}
                 </div>
-            </div>
-        `;
+            `;
+
+            container.appendChild(transactionDiv);
+        });
     }
 
-    showSuccessMessage(message) {
-        this.showMessage(message, 'success');
-    }
-
-    showErrorMessage(message) {
-        this.showMessage(message, 'error');
-    }
-
-    showMessage(message, type) {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `${type}-message`;
-        messageDiv.textContent = message;
+    updateJointGoals() {
+        const container = document.getElementById('jointGoals');
         
-        document.body.appendChild(messageDiv);
-        
-        setTimeout(() => {
-            messageDiv.remove();
-        }, 3000);
+        if (this.jointGoals.length === 0) {
+            container.innerHTML = `
+                <div class="empty-goals">
+                    <i class="fas fa-heart"></i>
+                    <p>No joint goals yet. Create your first goal together!</p>
+                    <button id="addJointGoalBtn" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add Joint Goal
+                    </button>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = this.jointGoals.map(goal => {
+            const progress = goal.target > 0 ? (goal.current / goal.target) * 100 : 0;
+            const daysLeft = Math.ceil((new Date(goal.deadline) - new Date()) / (1000 * 60 * 60 * 24));
+            const status = daysLeft < 0 ? 'Overdue' : daysLeft === 0 ? 'Due Today' : `${daysLeft} days left`;
+
+            return `
+                <div class="joint-goal-card">
+                    <div class="goal-header">
+                        <div class="goal-title">
+                            <i class="${goal.icon}"></i>
+                            ${goal.name}
+                        </div>
+                        <span class="goal-status">${status}</span>
+                    </div>
+                    <div class="goal-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${Math.min(progress, 100)}%"></div>
+                        </div>
+                    </div>
+                    <div class="goal-stats">
+                        <span>${this.formatCurrency(goal.current)} / ${this.formatCurrency(goal.target)}</span>
+                        <span>${progress.toFixed(1)}% Complete</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    calculateTotalExpenses() {
+        return this.transactions
+            .filter(t => t.type === 'expense')
+            .reduce((total, t) => total + t.amount, 0);
+    }
+
+    calculateSharedExpenses() {
+        return this.transactions
+            .filter(t => t.type === 'expense' && t.owner === 'shared')
+            .reduce((total, t) => total + t.amount, 0);
+    }
+
+    calculateCategorySpent(categoryName) {
+        return this.transactions
+            .filter(t => t.type === 'expense' && t.category === categoryName)
+            .reduce((total, t) => total + t.amount, 0);
+    }
+
+    calculateSubCategorySpent(categoryName, subCategoryName) {
+        return this.transactions
+            .filter(t => t.type === 'expense' && t.category === categoryName && t.subCategory === subCategoryName)
+            .reduce((total, t) => total + t.amount, 0);
+    }
+
+    getProgressStatus(percentage) {
+        if (percentage >= 90) return 'danger';
+        if (percentage >= 75) return 'warning';
+        return 'safe';
     }
 
     formatCurrency(amount) {
@@ -704,18 +712,166 @@ class BudgetTracker {
         }).format(amount);
     }
 
-    formatDate(dateString) {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric'
+    openModal(modalId) {
+        document.getElementById(modalId).style.display = 'block';
+        
+        // Update transaction modal for household mode
+        if (modalId === 'transactionModal') {
+            const householdFields = document.getElementById('householdTransactionFields');
+            householdFields.style.display = this.budgetMode === 'household' ? 'block' : 'none';
+            
+            // Populate category dropdown
+            this.populateCategoryDropdown();
+        }
+    }
+
+    closeAllModals() {
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.style.display = 'none';
         });
+    }
+
+    populateCategoryDropdown() {
+        const dropdown = document.getElementById('transactionCategory');
+        dropdown.innerHTML = '<option value="">Select Category</option>';
+
+        // Add default categories
+        Object.values(this.categories).forEach(group => {
+            group.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.name;
+                option.textContent = category.name;
+                dropdown.appendChild(option);
+            });
+        });
+
+        // Add custom categories
+        this.customCategories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category.name;
+            option.textContent = category.name;
+            dropdown.appendChild(option);
+        });
+    }
+
+    showNotification(message, type = 'info') {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i>
+            <span>${message}</span>
+        `;
+
+        // Add to page
+        document.body.appendChild(notification);
+
+        // Show notification
+        setTimeout(() => notification.classList.add('show'), 100);
+
+        // Remove after 3 seconds
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
+
+    saveData() {
+        const data = {
+            budgetMode: this.budgetMode,
+            budget: this.budget,
+            transactions: this.transactions,
+            jointGoals: this.jointGoals,
+            partner: this.partner,
+            yourIncome: this.yourIncome,
+            categories: this.categories,
+            customCategories: this.customCategories
+        };
+        localStorage.setItem('budgetTrackerData', JSON.stringify(data));
+    }
+
+    loadData() {
+        const savedData = localStorage.getItem('budgetTrackerData');
+        if (savedData) {
+            const data = JSON.parse(savedData);
+            this.budgetMode = data.budgetMode || 'personal';
+            this.budget = data.budget || {};
+            this.transactions = data.transactions || [];
+            this.jointGoals = data.jointGoals || [];
+            this.partner = data.partner || { name: 'Partner', income: 0, color: '#ec4899' };
+            this.yourIncome = data.yourIncome || 0;
+            this.categories = data.categories || this.getDefaultCategories();
+            this.customCategories = data.customCategories || [];
+
+            // Update form fields
+            document.getElementById('netIncome').value = this.yourIncome;
+            document.getElementById('yourIncomeInput').value = this.yourIncome;
+            document.getElementById('partnerIncomeInput').value = this.partner.income;
+        }
     }
 }
 
-// Initialize the app when the page loads
-let budgetTracker;
+// Initialize the app when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    budgetTracker = new BudgetTracker();
-}); 
+    new BudgetTracker();
+});
+
+// Add notification styles
+const notificationStyles = `
+    .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: white;
+        border-radius: 12px;
+        padding: 16px 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        z-index: 10000;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+        border-left: 4px solid #3b82f6;
+    }
+
+    .notification.show {
+        transform: translateX(0);
+    }
+
+    .notification.success {
+        border-left-color: #10b981;
+    }
+
+    .notification.success i {
+        color: #10b981;
+    }
+
+    .notification.info {
+        border-left-color: #3b82f6;
+    }
+
+    .notification.info i {
+        color: #3b82f6;
+    }
+
+    .notification.warning {
+        border-left-color: #f59e0b;
+    }
+
+    .notification.warning i {
+        color: #f59e0b;
+    }
+
+    .notification.error {
+        border-left-color: #ef4444;
+    }
+
+    .notification.error i {
+        color: #ef4444;
+    }
+`;
+
+const styleSheet = document.createElement('style');
+styleSheet.textContent = notificationStyles;
+document.head.appendChild(styleSheet); 
