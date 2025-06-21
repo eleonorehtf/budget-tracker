@@ -59,6 +59,50 @@
                 </div>
             </section>
 
+            <!-- Shared Expenses Budget -->
+            <section class="shared-expenses-budget-section">
+                <h2><i class="fas fa-home"></i> Shared Expenses Budget</h2>
+                <div class="shared-budget-content">
+                    <div class="shared-budget-input-group">
+                        <label for="sharedExpensesBudget">Monthly Shared Expenses Budget</label>
+                        <div class="budget-input-wrapper">
+                            <span class="currency-symbol">$</span>
+                            <input type="number" id="sharedExpensesBudget" placeholder="0.00" step="0.01" min="0">
+                        </div>
+                        <p class="budget-description">This is the total amount you both need to contribute for shared expenses like rent, utilities, groceries, etc.</p>
+                    </div>
+                    
+                    <div class="shared-budget-breakdown">
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Your Share:</span>
+                            <span class="breakdown-amount" id="yourShareAmount">$0.00</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">Partner's Share:</span>
+                            <span class="breakdown-amount" id="partnerShareAmount">$0.00</span>
+                        </div>
+                        <div class="breakdown-item total">
+                            <span class="breakdown-label">Total Needed:</span>
+                            <span class="breakdown-amount" id="totalSharedBudget">$0.00</span>
+                        </div>
+                    </div>
+
+                    <div class="shared-budget-progress">
+                        <div class="progress-header">
+                            <span>Shared Expenses Progress</span>
+                            <span id="sharedExpensesProgress">$0.00 / $0.00</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="sharedExpensesProgressFill" style="width: 0%"></div>
+                        </div>
+                        <div class="progress-labels">
+                            <span>Spent: <span id="sharedExpensesSpent">$0.00</span></span>
+                            <span>Remaining: <span id="sharedExpensesRemaining">$0.00</span></span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- Joint Goals -->
             <section class="joint-goals-section">
                 <h2><i class="fas fa-heart"></i> Our Goals</h2>

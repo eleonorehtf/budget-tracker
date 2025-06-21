@@ -12,6 +12,7 @@ class BudgetTracker {
             color: '#ec4899'
         };
         this.yourIncome = 0;
+        this.sharedExpensesBudget = 0; // New property for shared expenses budget
         this.categories = this.getDefaultCategories();
         this.customCategories = [];
         
@@ -80,6 +81,9 @@ class BudgetTracker {
         // Income inputs for household mode
         document.getElementById('yourIncomeInput').addEventListener('input', () => this.updateHouseholdIncome());
         document.getElementById('partnerIncomeInput').addEventListener('input', () => this.updateHouseholdIncome());
+
+        // Shared expenses budget input
+        document.getElementById('sharedExpensesBudget').addEventListener('input', () => this.updateSharedExpensesBudget());
 
         // Partner management
         document.getElementById('editPartnerBtn').addEventListener('click', () => this.openModal('editPartnerModal'));
@@ -169,6 +173,8 @@ class BudgetTracker {
             document.getElementById('partnerContribution').textContent = partnerContribution + '%';
         }
 
+        // Update shared expenses budget calculations
+        this.updateSharedExpensesBudget();
         this.updateBudgetAllocation();
     }
 
@@ -450,6 +456,7 @@ class BudgetTracker {
         this.updateBudgetCategories();
         this.updateTransactions();
         this.updateJointGoals();
+        this.updateSharedExpensesProgress();
     }
 
     updateDashboard() {
@@ -829,6 +836,7 @@ class BudgetTracker {
             jointGoals: this.jointGoals,
             partner: this.partner,
             yourIncome: this.yourIncome,
+            sharedExpensesBudget: this.sharedExpensesBudget,
             categories: this.categories,
             customCategories: this.customCategories
         };
@@ -845,6 +853,7 @@ class BudgetTracker {
             this.jointGoals = data.jointGoals || [];
             this.partner = data.partner || { name: 'Partner', income: 0, color: '#ec4899' };
             this.yourIncome = data.yourIncome || 0;
+            this.sharedExpensesBudget = data.sharedExpensesBudget || 0;
             this.categories = data.categories || this.getDefaultCategories();
             this.customCategories = data.customCategories || [];
 
@@ -852,6 +861,61 @@ class BudgetTracker {
             document.getElementById('netIncome').value = this.yourIncome;
             document.getElementById('yourIncomeInput').value = this.yourIncome;
             document.getElementById('partnerIncomeInput').value = this.partner.income;
+            document.getElementById('sharedExpensesBudget').value = this.sharedExpensesBudget;
+        }
+    }
+
+    updateSharedExpensesBudget() {
+        const sharedBudget = parseFloat(document.getElementById('sharedExpensesBudget').value) || 0;
+        this.sharedExpensesBudget = sharedBudget;
+        
+        // Calculate individual shares based on income proportions
+        const totalIncome = this.yourIncome + this.partner.income;
+        let yourShare = 0;
+        let partnerShare = 0;
+        
+        if (totalIncome > 0) {
+            const yourProportion = this.yourIncome / totalIncome;
+            const partnerProportion = this.partner.income / totalIncome;
+            
+            yourShare = sharedBudget * yourProportion;
+            partnerShare = sharedBudget * partnerProportion;
+        }
+        
+        // Update the breakdown display
+        document.getElementById('yourShareAmount').textContent = this.formatCurrency(yourShare);
+        document.getElementById('partnerShareAmount').textContent = this.formatCurrency(partnerShare);
+        document.getElementById('totalSharedBudget').textContent = this.formatCurrency(sharedBudget);
+        
+        // Update shared expenses progress
+        this.updateSharedExpensesProgress();
+        
+        // Save data
+        this.saveData();
+    }
+
+    updateSharedExpensesProgress() {
+        const sharedBudget = this.sharedExpensesBudget;
+        const sharedExpenses = this.calculateSharedExpenses();
+        const remaining = sharedBudget - sharedExpenses;
+        const percentage = sharedBudget > 0 ? (sharedExpenses / sharedBudget) * 100 : 0;
+        
+        // Update progress display
+        document.getElementById('sharedExpensesProgress').textContent = 
+            `${this.formatCurrency(sharedExpenses)} / ${this.formatCurrency(sharedBudget)}`;
+        document.getElementById('sharedExpensesSpent').textContent = this.formatCurrency(sharedExpenses);
+        document.getElementById('sharedExpensesRemaining').textContent = this.formatCurrency(remaining);
+        
+        // Update progress bar
+        const progressFill = document.getElementById('sharedExpensesProgressFill');
+        progressFill.style.width = `${Math.min(percentage, 100)}%`;
+        
+        // Update progress bar color based on percentage
+        progressFill.className = 'progress-fill';
+        if (percentage >= 90) {
+            progressFill.classList.add('danger');
+        } else if (percentage >= 75) {
+            progressFill.classList.add('warning');
         }
     }
 }
