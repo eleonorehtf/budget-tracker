@@ -63,16 +63,102 @@
             <section class="shared-expenses-budget-section">
                 <h2><i class="fas fa-home"></i> Shared Expenses Budget</h2>
                 <div class="shared-budget-content">
-                    <div class="shared-budget-input-group">
-                        <label for="sharedExpensesBudget">Monthly Shared Expenses Budget</label>
-                        <div class="budget-input-wrapper">
-                            <span class="currency-symbol">$</span>
-                            <input type="number" id="sharedExpensesBudget" placeholder="0.00" step="0.01" min="0">
+                    <div class="shared-budget-breakdown-input">
+                        <h3>Monthly Shared Expenses Breakdown</h3>
+                        <p class="budget-description">Break down your monthly shared expenses by category to calculate your total budget.</p>
+                        
+                        <div class="shared-expense-categories">
+                            <div class="expense-category-item">
+                                <label for="rentBudget">Rent/Mortgage</label>
+                                <div class="budget-input-wrapper">
+                                    <span class="currency-symbol">$</span>
+                                    <input type="number" id="rentBudget" placeholder="0.00" step="0.01" min="0">
+                                </div>
+                            </div>
+                            
+                            <div class="expense-category-item">
+                                <label for="utilitiesBudget">Utilities (Electric, Water, Gas)</label>
+                                <div class="budget-input-wrapper">
+                                    <span class="currency-symbol">$</span>
+                                    <input type="number" id="utilitiesBudget" placeholder="0.00" step="0.01" min="0">
+                                </div>
+                            </div>
+                            
+                            <div class="expense-category-item">
+                                <label for="internetBudget">Internet & Phone</label>
+                                <div class="budget-input-wrapper">
+                                    <span class="currency-symbol">$</span>
+                                    <input type="number" id="internetBudget" placeholder="0.00" step="0.01" min="0">
+                                </div>
+                            </div>
+                            
+                            <div class="expense-category-item">
+                                <label for="groceriesBudget">Groceries</label>
+                                <div class="budget-input-wrapper">
+                                    <span class="currency-symbol">$</span>
+                                    <input type="number" id="groceriesBudget" placeholder="0.00" step="0.01" min="0">
+                                </div>
+                            </div>
+                            
+                            <div class="expense-category-item">
+                                <label for="diningBudget">Dining Out</label>
+                                <div class="budget-input-wrapper">
+                                    <span class="currency-symbol">$</span>
+                                    <input type="number" id="diningBudget" placeholder="0.00" step="0.01" min="0">
+                                </div>
+                            </div>
+                            
+                            <div class="expense-category-item">
+                                <label for="transportationBudget">Transportation (Gas, Public Transit)</label>
+                                <div class="budget-input-wrapper">
+                                    <span class="currency-symbol">$</span>
+                                    <input type="number" id="transportationBudget" placeholder="0.00" step="0.01" min="0">
+                                </div>
+                            </div>
+                            
+                            <div class="expense-category-item">
+                                <label for="insuranceBudget">Insurance (Health, Car, Home)</label>
+                                <div class="budget-input-wrapper">
+                                    <span class="currency-symbol">$</span>
+                                    <input type="number" id="insuranceBudget" placeholder="0.00" step="0.01" min="0">
+                                </div>
+                            </div>
+                            
+                            <div class="expense-category-item">
+                                <label for="subscriptionsBudget">Subscriptions (Netflix, Spotify, etc.)</label>
+                                <div class="budget-input-wrapper">
+                                    <span class="currency-symbol">$</span>
+                                    <input type="number" id="subscriptionsBudget" placeholder="0.00" step="0.01" min="0">
+                                </div>
+                            </div>
+                            
+                            <div class="expense-category-item">
+                                <label for="entertainmentBudget">Entertainment & Activities</label>
+                                <div class="budget-input-wrapper">
+                                    <span class="currency-symbol">$</span>
+                                    <input type="number" id="entertainmentBudget" placeholder="0.00" step="0.01" min="0">
+                                </div>
+                            </div>
+                            
+                            <div class="expense-category-item">
+                                <label for="otherSharedBudget">Other Shared Expenses</label>
+                                <div class="budget-input-wrapper">
+                                    <span class="currency-symbol">$</span>
+                                    <input type="number" id="otherSharedBudget" placeholder="0.00" step="0.01" min="0">
+                                </div>
+                            </div>
                         </div>
-                        <p class="budget-description">This is the total amount you both need to contribute for shared expenses like rent, utilities, groceries, etc.</p>
+                        
+                        <div class="total-shared-budget">
+                            <div class="total-line">
+                                <span class="total-label">Total Monthly Shared Expenses:</span>
+                                <span class="total-amount" id="totalSharedExpensesBudget">$0.00</span>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="shared-budget-breakdown">
+                        <h3>Your Contribution Breakdown</h3>
                         <div class="breakdown-item">
                             <span class="breakdown-label">Your Share:</span>
                             <span class="breakdown-amount" id="yourShareAmount">$0.00</span>

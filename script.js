@@ -12,7 +12,19 @@ class BudgetTracker {
             color: '#ec4899'
         };
         this.yourIncome = 0;
-        this.sharedExpensesBudget = 0; // New property for shared expenses budget
+        this.sharedExpensesBudget = 0; // Total shared expenses budget
+        this.sharedExpenseCategories = {
+            rent: 0,
+            utilities: 0,
+            internet: 0,
+            groceries: 0,
+            dining: 0,
+            transportation: 0,
+            insurance: 0,
+            subscriptions: 0,
+            entertainment: 0,
+            other: 0
+        };
         this.categories = this.getDefaultCategories();
         this.customCategories = [];
         
@@ -82,8 +94,17 @@ class BudgetTracker {
         document.getElementById('yourIncomeInput').addEventListener('input', () => this.updateHouseholdIncome());
         document.getElementById('partnerIncomeInput').addEventListener('input', () => this.updateHouseholdIncome());
 
-        // Shared expenses budget input
-        document.getElementById('sharedExpensesBudget').addEventListener('input', () => this.updateSharedExpensesBudget());
+        // Shared expenses category inputs
+        document.getElementById('rentBudget').addEventListener('input', () => this.updateSharedExpensesBudget());
+        document.getElementById('utilitiesBudget').addEventListener('input', () => this.updateSharedExpensesBudget());
+        document.getElementById('internetBudget').addEventListener('input', () => this.updateSharedExpensesBudget());
+        document.getElementById('groceriesBudget').addEventListener('input', () => this.updateSharedExpensesBudget());
+        document.getElementById('diningBudget').addEventListener('input', () => this.updateSharedExpensesBudget());
+        document.getElementById('transportationBudget').addEventListener('input', () => this.updateSharedExpensesBudget());
+        document.getElementById('insuranceBudget').addEventListener('input', () => this.updateSharedExpensesBudget());
+        document.getElementById('subscriptionsBudget').addEventListener('input', () => this.updateSharedExpensesBudget());
+        document.getElementById('entertainmentBudget').addEventListener('input', () => this.updateSharedExpensesBudget());
+        document.getElementById('otherSharedBudget').addEventListener('input', () => this.updateSharedExpensesBudget());
 
         // Partner management
         document.getElementById('editPartnerBtn').addEventListener('click', () => this.openModal('editPartnerModal'));
@@ -837,6 +858,7 @@ class BudgetTracker {
             partner: this.partner,
             yourIncome: this.yourIncome,
             sharedExpensesBudget: this.sharedExpensesBudget,
+            sharedExpenseCategories: this.sharedExpenseCategories,
             categories: this.categories,
             customCategories: this.customCategories
         };
@@ -854,6 +876,18 @@ class BudgetTracker {
             this.partner = data.partner || { name: 'Partner', income: 0, color: '#ec4899' };
             this.yourIncome = data.yourIncome || 0;
             this.sharedExpensesBudget = data.sharedExpensesBudget || 0;
+            this.sharedExpenseCategories = data.sharedExpenseCategories || {
+                rent: 0,
+                utilities: 0,
+                internet: 0,
+                groceries: 0,
+                dining: 0,
+                transportation: 0,
+                insurance: 0,
+                subscriptions: 0,
+                entertainment: 0,
+                other: 0
+            };
             this.categories = data.categories || this.getDefaultCategories();
             this.customCategories = data.customCategories || [];
 
@@ -861,13 +895,39 @@ class BudgetTracker {
             document.getElementById('netIncome').value = this.yourIncome;
             document.getElementById('yourIncomeInput').value = this.yourIncome;
             document.getElementById('partnerIncomeInput').value = this.partner.income;
-            document.getElementById('sharedExpensesBudget').value = this.sharedExpensesBudget;
+            
+            // Update shared expense category inputs
+            document.getElementById('rentBudget').value = this.sharedExpenseCategories.rent;
+            document.getElementById('utilitiesBudget').value = this.sharedExpenseCategories.utilities;
+            document.getElementById('internetBudget').value = this.sharedExpenseCategories.internet;
+            document.getElementById('groceriesBudget').value = this.sharedExpenseCategories.groceries;
+            document.getElementById('diningBudget').value = this.sharedExpenseCategories.dining;
+            document.getElementById('transportationBudget').value = this.sharedExpenseCategories.transportation;
+            document.getElementById('insuranceBudget').value = this.sharedExpenseCategories.insurance;
+            document.getElementById('subscriptionsBudget').value = this.sharedExpenseCategories.subscriptions;
+            document.getElementById('entertainmentBudget').value = this.sharedExpenseCategories.entertainment;
+            document.getElementById('otherSharedBudget').value = this.sharedExpenseCategories.other;
         }
     }
 
     updateSharedExpensesBudget() {
-        const sharedBudget = parseFloat(document.getElementById('sharedExpensesBudget').value) || 0;
-        this.sharedExpensesBudget = sharedBudget;
+        // Get values from all category inputs
+        this.sharedExpenseCategories.rent = parseFloat(document.getElementById('rentBudget').value) || 0;
+        this.sharedExpenseCategories.utilities = parseFloat(document.getElementById('utilitiesBudget').value) || 0;
+        this.sharedExpenseCategories.internet = parseFloat(document.getElementById('internetBudget').value) || 0;
+        this.sharedExpenseCategories.groceries = parseFloat(document.getElementById('groceriesBudget').value) || 0;
+        this.sharedExpenseCategories.dining = parseFloat(document.getElementById('diningBudget').value) || 0;
+        this.sharedExpenseCategories.transportation = parseFloat(document.getElementById('transportationBudget').value) || 0;
+        this.sharedExpenseCategories.insurance = parseFloat(document.getElementById('insuranceBudget').value) || 0;
+        this.sharedExpenseCategories.subscriptions = parseFloat(document.getElementById('subscriptionsBudget').value) || 0;
+        this.sharedExpenseCategories.entertainment = parseFloat(document.getElementById('entertainmentBudget').value) || 0;
+        this.sharedExpenseCategories.other = parseFloat(document.getElementById('otherSharedBudget').value) || 0;
+        
+        // Calculate total shared expenses budget
+        this.sharedExpensesBudget = Object.values(this.sharedExpenseCategories).reduce((total, amount) => total + amount, 0);
+        
+        // Update total display
+        document.getElementById('totalSharedExpensesBudget').textContent = this.formatCurrency(this.sharedExpensesBudget);
         
         // Calculate individual shares based on income proportions
         const totalIncome = this.yourIncome + this.partner.income;
@@ -878,14 +938,14 @@ class BudgetTracker {
             const yourProportion = this.yourIncome / totalIncome;
             const partnerProportion = this.partner.income / totalIncome;
             
-            yourShare = sharedBudget * yourProportion;
-            partnerShare = sharedBudget * partnerProportion;
+            yourShare = this.sharedExpensesBudget * yourProportion;
+            partnerShare = this.sharedExpensesBudget * partnerProportion;
         }
         
         // Update the breakdown display
         document.getElementById('yourShareAmount').textContent = this.formatCurrency(yourShare);
         document.getElementById('partnerShareAmount').textContent = this.formatCurrency(partnerShare);
-        document.getElementById('totalSharedBudget').textContent = this.formatCurrency(sharedBudget);
+        document.getElementById('totalSharedBudget').textContent = this.formatCurrency(this.sharedExpensesBudget);
         
         // Update shared expenses progress
         this.updateSharedExpensesProgress();
